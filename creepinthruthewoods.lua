@@ -60,6 +60,12 @@ local function CancelLock()
 	Environment.FOVCircle.Color = Environment.FOVSettings.Color
 end
 
+local function IsInFOV(targetPosition)
+	local mouseLocation = UserInputService:GetMouseLocation()
+	local fovCircleRadius = Environment.FOVSettings.Amount
+	return (targetPosition - mouseLocation).Magnitude <= fovCircleRadius
+end
+
 local function GetClosestPlayer()
     if not Environment.Locked then
         RequiredDistance = (Environment.FOVSettings.Enabled and Environment.FOVSettings.Amount or 2000)
@@ -79,8 +85,10 @@ local function GetClosestPlayer()
                     local Distance = (Vector2(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y) - Vector2(Vector.X, Vector.Y)).Magnitude
 
                     if Distance < closestDistance and OnScreen then
-                        closestPlayer = v
-                        closestDistance = Distance
+                        if not Environment.FOVSettings.Enabled or IsInFOV(Vector2(Vector.X, Vector.Y)) then
+                            closestPlayer = v
+                            closestDistance = Distance
+                        end
                     end
                 end
             end
@@ -114,13 +122,7 @@ local function GetClosestPlayer()
     elseif (Vector2(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y) - Vector2(Camera:WorldToViewportPoint(Environment.Locked.Character[Environment.Settings.LockPart].Position).X, Camera:WorldToViewportPoint(Environment.Locked.Character[Environment.Settings.LockPart].Position).Y)).Magnitude > RequiredDistance then
         CancelLock()
     end
-    
-    -- Print the target's username if it's locked
-    if Environment.Locked then
-        
-    end
 end
-
 
 --// Typing Check
 ServiceConnections.TypingStartedConnection = UserInputService.TextBoxFocused:Connect(function()
@@ -275,4 +277,3 @@ end
 
 --// Load
 Load()
-
