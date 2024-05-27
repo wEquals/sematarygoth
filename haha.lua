@@ -1054,4 +1054,3 @@ ESPSection:AddButton({
 
 local Time = (string.format("%."..tostring(Decimals).."f", os.clock() - Clock))
 library:SendNotification(("Loaded In "..tostring(Time)), 6)
-
