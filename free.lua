@@ -6,7 +6,7 @@ local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/drill
 library:init()
 
 local Window1 = library.NewWindow({
-    title = "Project X / v2 / free trial ",
+    title = "Project X / v2 / free trial xd",
     size = UDim2.new(0, 600, 0.5, 6)
 })
 
@@ -1261,7 +1261,7 @@ AntiAimSection:AddSlider({
     dragging = true,
     focused = false,
     min = -50,
-    max = 50000,
+    max = 50,
     increment = 1,
     risky = false,
     callback = function(v)
@@ -1278,7 +1278,7 @@ AntiAimSection:AddSlider({
     dragging = true,
     focused = false,
     min = -50,
-    max = 50000,
+    max = 50,
     increment = 1,
     risky = false,
     callback = function(v)
@@ -1295,7 +1295,7 @@ AntiAimSection:AddSlider({
     dragging = true,
     focused = false,
     min = -50,
-    max = 50000,
+    max = 50,
     increment = 1,
     risky = false,
     callback = function(v)
@@ -1508,7 +1508,7 @@ if isTargetGame() then
         open = false,
         max = 20,
         values = {
-            "Wyvern", "Tsunami", "Toxic", "Staff", "Boundless", "Scythe", "S2", "Catalyst", "Offwhite", "N2", "Magma", "Ion", "X2", "Pulsar", "Blueberry", "Rusted", "Frigid", "Anniversary", "Booster"
+            "Wyvern", "Tsunami", "Toxic", "Staff", "Boundless", "Scythe", "S2", "Catalyst", "Offwhite", "N2", "Magma", "Ion", "X2", "Pulsar", "Blueberry", "Rusted", "Frigid", "Anniversary", "HellSpawn"
         },
         callback = function(v)
             changeSkin(v)
