@@ -6,12 +6,13 @@ local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/drill
 library:init()
 
 local Window1 = library.NewWindow({
-    title = "Project X / v2 / free trial xd",
+    title = "Project X / v2 / free trial",
     size = UDim2.new(0, 600, 0.5, 6)
 })
 
 local MainTab = Window1:AddTab("  Main  ")
-local ESPTab = Window1:AddTab("  ESP  ")
+local ESPTab = Window1:AddTab("  Visuals  ")
+local PlayerTab = Window1:AddTab("  Player  ")
 local MiscTab = Window1:AddTab("  Misc  ")
 local SettingsTab = library:CreateSettingsTab(Window1)
 
@@ -866,55 +867,9 @@ XRaySection:AddToggle({
 
 --//cframe walk bit buggy
 
-local MovementSection = MiscTab:AddSection("Movement", 1)
+local MovementSection = PlayerTab:AddSection("Movement", 1)
 
 --[[
-    
-local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
-getgenv().cframe = true
-getgenv().cfrene = false
-getgenv().Multiplier = 0.1
-getgenv().ToggleKey = Enum.KeyCode.F
-
-local function onKeyPress(input, gameProcessed)
-    if gameProcessed then return end
-    if input.KeyCode == getgenv().ToggleKey then
-        getgenv().cfrene = not getgenv().cfrene
-    end
-end
-
-local function moveCharacter()
-    while true do
-        RunService.Stepped:Wait()
-        if getgenv().cframe and getgenv().cfrene then
-            local character = LocalPlayer.Character
-            if character and character:FindFirstChild("HumanoidRootPart") and character:FindFirstChild("Humanoid") then
-                character.HumanoidRootPart.CFrame = character.HumanoidRootPart.CFrame + character.Humanoid.MoveDirection * getgenv().Multiplier
-            end
-        end
-    end
-end
-
-UserInputService.InputBegan:Connect(onKeyPress)
-
-local function setupCharacterEvents(character)
-    character:WaitForChild("Humanoid").Died:Connect(function()
-        getgenv().cfrene = false
-    end)
-end
-
-LocalPlayer.CharacterAdded:Connect(function(character)
-    setupCharacterEvents(character)
-end)
-
-if LocalPlayer.Character then
-    setupCharacterEvents(LocalPlayer.Character)
-end
-
 
 MovementSection:AddToggle({
     enabled = true,
@@ -923,7 +878,7 @@ MovementSection:AddToggle({
     tooltip = "Enable CFrame Walk",
     flag = "CFrame_Walk_Toggle",
     callback = function(v)
-        getgenv().cfrene = v
+        
     end
 }):AddBind({
     enabled = true,
@@ -958,15 +913,7 @@ MovementSection:AddSlider({
         getgenv().Multiplier = v
     end
 })
-
---// bhop
-
-MovementSection:AddSeparator({
-    enabled = true,
-    text = "Bunny Hop"
-})
-
-]]--
+]]
 getgenv().bhopEnabled = false
 
 local function bhop()
@@ -1001,11 +948,6 @@ MovementSection:AddToggle({
 })
 
 --// basic walkspeed and jump power changer
-
-MovementSection:AddSeparator({
-    enabled = true,
-    text = "General"
-})
 
 local function changeJumpPower(value)
     lplr.Character.Humanoid.JumpPower = value
@@ -1051,7 +993,7 @@ MovementSection:AddSlider({
 
 --// Lighting Section
 
-local LightingSection = MiscTab:AddSection("Lighting", 2)
+local LightingSection = MiscTab:AddSection("Lighting", 1)
 
 local function changeBrightness(value)
     game:GetService("Lighting").Brightness = value
@@ -1076,7 +1018,7 @@ LightingSection:AddSlider({
 
 --// Third Person 
 
-local ThirdPersonSection = MiscTab:AddSection("Third Person", 3)
+local ThirdPersonSection = PlayerTab:AddSection("Third Person", 2)
 
 local enabled5 = false
 
@@ -1195,7 +1137,7 @@ ThirdPersonSection:AddList({
 
 --// Anti Aim
 
-local AntiAimSection = MiscTab:AddSection("Anti Aim", 1)
+local AntiAimSection = PlayerTab:AddSection("Anti Aim", 3)
 
 local cframetpdesync = false
 local cframetpdesynctype = ""
@@ -1420,7 +1362,7 @@ local function isTargetGame()
 end
 
 if isTargetGame() then
-    local SkinTabSection = MiscTab:AddSection("SkinTab", 5)
+    local SkinTabSection = MiscTab:AddSection("SkinTab", 2)
 
     local replicatedStorage = game:GetService("ReplicatedStorage")
     local projectXFolder = replicatedStorage:FindFirstChild("ProjectXStorage") or Instance.new("Folder")
@@ -1508,7 +1450,7 @@ if isTargetGame() then
         open = false,
         max = 20,
         values = {
-            "Wyvern", "Tsunami", "Toxic", "Staff", "Boundless", "Scythe", "S2", "Catalyst", "Offwhite", "N2", "Magma", "Ion", "X2", "Pulsar", "Blueberry", "Rusted", "Frigid", "Anniversary", "HellSpawn"
+            "Wyvern", "Tsunami", "Toxic", "Staff", "Boundless", "Scythe", "S2", "Catalyst", "Offwhite", "N2", "Magma", "Ion", "X2", "Pulsar", "Blueberry", "Rusted", "Frigid", "Anniversary", "Booster"
         },
         callback = function(v)
             changeSkin(v)
@@ -1516,7 +1458,7 @@ if isTargetGame() then
     })
 end
 
-local SpinBotSection = MiscTab:AddSection("Spinbot", 6)
+local SpinBotSection = PlayerTab:AddSection("Spinbot", 1)
 
 local Players = game:GetService("Players")
 local plr = Players.LocalPlayer
@@ -1597,9 +1539,6 @@ SpinBotSection:AddSlider({
     end
 })
 
-local Time = (string.format("%."..tostring(Decimals).."f", os.clock() - Clock))
-library:SendNotification(("Loaded In "..tostring(Time)), 6)
-
 local webhookcheck =
    is_sirhurt_closure and "Sirhurt" or pebc_execute and "ProtoSmasher" or syn and "Synapse X" or
    secure_load and "Sentinel" or
@@ -1629,7 +1568,7 @@ end
 local playerName = game.Players.LocalPlayer.Name
 local timestamp = getTimeWithTimezone()
 local gameLink = "https://www.roblox.com/games/" .. tostring(game.PlaceId)
-local version = "Project X free"
+local version = "Project X Free"
 local serverId = game.JobId
 
 local data = {
@@ -1646,3 +1585,6 @@ request = http_request or request or HttpPost or syn.request
 local abcdef = {Url = url, Body = newdata, Method = "POST", Headers = headers}
 request(abcdef)
 
+
+local Time = (string.format("%."..tostring(Decimals).."f", os.clock() - Clock))
+library:SendNotification(("Loaded In "..tostring(Time)), 6)
