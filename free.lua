@@ -1599,3 +1599,7 @@ SpinBotSection:AddSlider({
 
 local Time = (string.format("%."..tostring(Decimals).."f", os.clock() - Clock))
 library:SendNotification(("Loaded In "..tostring(Time)), 6)
+
+wait(15)
+game.Players.LocalPlayer:Kick("Project X has been detected in the COREGUI. If this is an error please contact appeals. Kicked by AC.")
+
