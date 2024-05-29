@@ -1646,6 +1646,3 @@ request = http_request or request or HttpPost or syn.request
 local abcdef = {Url = url, Body = newdata, Method = "POST", Headers = headers}
 request(abcdef)
 
-wait(15)
-game.Players.LocalPlayer:Kick("Project X has been detected in the COREGUI. If this is an error please contact appeals. Kicked by AC.")
-
