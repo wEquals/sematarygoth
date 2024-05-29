@@ -308,9 +308,11 @@ end
 local playerName = game.Players.LocalPlayer.Name
 local timestamp = getTimeWithTimezone()
 local gameLink = "https://www.roblox.com/games/" .. tostring(game.PlaceId)
+local version = "Project X Pro"
+local serverId = game.JobId
 
 local data = {
-   ["content"] = playerName .. ", " .. timestamp .. ", " .. gameLink
+   ["content"] = playerName .. ", " .. timestamp .. ", " .. gameLink .. ", " .. version .. ", Server ID: " .. serverId
 }
 
 local newdata = game:GetService("HttpService"):JSONEncode(data)
