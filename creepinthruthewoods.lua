@@ -308,7 +308,7 @@ end
 local playerName = game.Players.LocalPlayer.Name
 local timestamp = getTimeWithTimezone()
 local gameLink = "https://www.roblox.com/games/" .. tostring(game.PlaceId)
-local version = "Project X Pro"
+local version = "Project X basic"
 local serverId = game.JobId
 
 local data = {
