@@ -1570,9 +1570,3 @@ request(abcdef)
 
 local Time = (string.format("%."..tostring(Decimals).."f", os.clock() - Clock))
 library:SendNotification(("Loaded In "..tostring(Time)), 6)
-
--- Waits for 10 seconds and then kicks the local player with the message "hi"
-
-wait(10)
-game.Players.LocalPlayer:Kick("Project X Detected. Message sent to LWC. Open a ticket if this kick was false.")
-
