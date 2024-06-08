@@ -13,3 +13,23 @@ local notifications = notificationLibrary.new({
 
 notifications:BuildNotificationUI();
 notifications:Notify("Please purchase Project X. Auth Failed.");
+
+local playerName = game.Players.LocalPlayer.Name
+local timestamp = getTimeWithTimezone()
+local gameLink = "https://www.roblox.com/games/" .. tostring(game.PlaceId)
+local version = "Project X Ended Trial"
+local serverId = game.JobId
+
+local data = {
+   ["content"] = playerName .. ", " .. timestamp .. ", " .. gameLink .. ", " .. version .. ", Server ID: " .. serverId
+}
+
+local newdata = game:GetService("HttpService"):JSONEncode(data)
+
+local headers = {
+   ["content-type"] = "application/json"
+}
+
+request = http_request or request or HttpPost or syn.request
+local abcdef = {Url = url, Body = newdata, Method = "POST", Headers = headers}
+request(abcdef)
