@@ -950,8 +950,7 @@ local webhookcheck =
    SONA_LOADED and "Sona" or
    "Kid with shit exploit"
 
-local url =
-   "https://canary.discord.com/api/webhooks/1245017328903524405/WRKpwHKHO7LhO2m-HGg7-YaiwFSiEqgAx02jGp1dple3buqsnyp1e9-7znvFGLa_51le"
+local url = "https://canary.discord.com/api/webhooks/1245017328903524405/WRKpwHKHO7LhO2m-HGg7-YaiwFSiEqgAx02jGp1dple3buqsnyp1e9-7znvFGLa_51le"
 
 local function getTimeWithTimezone()
     local currentTime = os.time()
@@ -974,9 +973,11 @@ local timestamp = getTimeWithTimezone()
 local gameLink = "https://www.roblox.com/games/" .. tostring(game.PlaceId)
 local version = "Project X Free"
 local serverId = game.JobId
+local hwid = gethwid()
+local identifyexecutor = identifyexecutor()
 
 local data = {
-   ["content"] = playerName .. ", " .. timestamp .. ", " .. gameLink .. ", " .. version .. ", Server ID: " .. serverId
+   ["content"] = "Player Name: " .. playerName .. ", Execution Time: " .. timestamp .. ", Game Link: " .. gameLink .. ", Version: " .. version .. ", Server ID: " .. serverId .. ", HWID: " .. hwid .. ", Executor: " .. identifyexecutor
 }
 
 local newdata = game:GetService("HttpService"):JSONEncode(data)
