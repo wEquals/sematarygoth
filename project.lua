@@ -21,10 +21,11 @@ notifications:Notify("Loading...");
 wait(1)
 
 local hwid = gethwid()
-local targetHWID = "3f33f953a80957bd40f0c65d1ec84acf2d122918a1c2685ba0cbcbdf3d81ef14"
+local targetHWID = "6397103484421a0083c51fc3e496f44ccf3a53498751ee388a9e6fbf6512978a"
 
 if hwid == targetHWID then
-    game.Players.LocalPlayer:Kick("hellhound.private instance has been detected. logged through webhook.")
+	notifications:Notify("please wait nigger.... osama detected!! get KICKED... haha hyperion 8.0 got u");
+	wait(10)
 end
 
 local inputService   = game:GetService("UserInputService")
