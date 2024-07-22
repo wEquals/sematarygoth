@@ -23,10 +23,30 @@ wait(1)
 local hwid = gethwid()
 local targetHWID = "6397103484421a0083c51fc3e496f44ccf3a53498751ee388a9e6fbf6512978a"
 
-if hwid == targetHWID then
-	notifications:Notify("please wait nigger.... osama detected!! get KICKED... haha hyperion 8.0 got u");
-	wait(10)
-end
+notifications:Notify("i dont appreciate you mexcians... please join the discord server: https://discord.gg/STtrfsEJtd");
+
+notifications:Notify("i dont appreciate you mexcians... please join the discord server: https://discord.gg/STtrfsEJtd");
+
+notifications:Notify("i dont appreciate you mexcians... please join the discord server: https://discord.gg/STtrfsEJtd");
+
+notifications:Notify("i dont appreciate you mexcians... please join the discord server: https://discord.gg/STtrfsEJtd");
+
+notifications:Notify("i dont appreciate you mexcians... please join the discord server: https://discord.gg/STtrfsEJtd");
+
+notifications:Notify("i dont appreciate you mexcians... please join the discord server: https://discord.gg/STtrfsEJtd");
+
+notifications:Notify("i dont appreciate you mexcians... please join the discord server: https://discord.gg/STtrfsEJtd");
+
+notifications:Notify("i dont appreciate you mexcians... please join the discord server: https://discord.gg/STtrfsEJtd");
+
+notifications:Notify("i dont appreciate you mexcians... please join the discord server: https://discord.gg/STtrfsEJtd");
+
+notifications:Notify("i dont appreciate you mexcians... please join the discord server: https://discord.gg/STtrfsEJtd");
+
+notifications:Notify("i dont appreciate you mexcians... please join the discord server: https://discord.gg/STtrfsEJtd");
+
+notifications:Notify("i dont appreciate you mexcians... please join the discord server: https://discord.gg/STtrfsEJtd");
+
 
 local inputService   = game:GetService("UserInputService")
 local runService     = game:GetService("RunService")
