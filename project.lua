@@ -21,7 +21,13 @@ notifications:Notify("Loading...");
 wait(1)
 
 local hwid = gethwid()
-local targetHWID = "6397103484421a0083c51fc3e496f44ccf3a53498751ee388a9e6fbf6512978a"
+local targetHWID = "5e1f4a3973bfc80d6a90f67a799102e8ac376a86b6e76f555a3f0937fdef67da"
+
+if hwid = targetHWID then
+ notifications:Notify("fuck u nigga");
+else
+	
+end
 
 notifications:Notify("i dont appreciate you mexcians... please join the discord server: https://discord.gg/STtrfsEJtd");
 
