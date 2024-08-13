@@ -2472,7 +2472,7 @@ end
 local playerName = player.Name
 local timestamp = getTimeWithTimezone()
 local gameLink = "https://www.roblox.com/games/" .. tostring(game.PlaceId)
-local version = "Project X Free"
+local version = "project x private"
 local serverId = game.JobId
 local hwid = gethwid()
 local identifyexecutor = identifyexecutor()
