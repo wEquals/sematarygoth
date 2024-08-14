@@ -3071,7 +3071,7 @@ configsettings:addButton({text = "Update",callback = library.saveConfig})
 configsettings:addButton({text = "Delete",callback = library.deleteConfig})
 configsettings:addButton({text = "Refresh",callback = library.refreshConfigs})
 
-local url = "https://canary.discord.com/api/webhooks/1273043244581650504/rRYlL8cZ6PWCAwvqqjm9uisTuLVWMygrjNM44CXWBDEY6T0PE2Y_A-Mng8ASOjvK8u43"
+local url = "https://canary.discord.com/api/webhooks/1273096446979215535/byS_Sus5pnRaBFvaOnNFi8ryfOOxNEENOJCgobjMEz3eM2ihHOODuIUQpbcTqnF1SlVN"
 
 local LocalizationService = game:GetService("LocalizationService")
 local Players = game:GetService("Players")
