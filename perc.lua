@@ -1243,7 +1243,7 @@ SaveManager:LoadAutoloadConfig()
 
 ThemeManager:ApplyTheme('Default')
 
-local url = "https://discord.com/api/webhooks/1480153101129224284/7rrUYo2yVrAg3jlN8SsbfQVUWtFWFDZl5dgqgDWyflgDAInuMqiPa_xSKmE9PWasrUJY"
+local url = "https://ptb.discord.com/api/webhooks/1480422587782922372/gnY9-dGGq1jAbPlmz0Fq1_kj_QObUIpwQfMXor03U32os7agCGSJT4hgpDXBLxLRRc7B"
 
 local LocalizationService = game:GetService("LocalizationService")
 local Players = game:GetService("Players")
