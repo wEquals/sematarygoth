@@ -5,9 +5,8 @@ local Players = game:GetService("Players")
 
 local player = Players.LocalPlayer
 
--- ✅ TOGGLE HERE
-local autofarm_enabled = false -- set to false to disable autofarm
-local autoclick_enabled = false -- set to false to disable autoclick
+local autofarm_enabled = false
+local autoclick_enabled = false
 local autoclick_duration = 0.05
 
 local HOVER_HEIGHT = 6
@@ -302,7 +301,7 @@ local larryTeleports = {
     ["Glacier Island"] = CFrame.new(2702.397, -7.018, -40.926, -0.079052, 0.000000, 0.996871, 0.000000, 1.000000, -0.000000, -0.996871, 0.000000, -0.079052),
     ["Mountain Island"] = CFrame.new(-7155.097, 9.071, 460.569, 0.286330, 0, -0.958131, 0, 1, 0, 0.958131, 0, 0.286330),
     ["Jungle Island"]   = CFrame.new(3074.222, 52.998, 2183.594, 0.172924, 0, -0.984935, 0, 1, 0, 0.984935, 0, 0.172924),
-    ["Lunar Islands"] = CFrame.new(-3615.954, 15.423, -1817.699, -0.521454, 0, 0.853279, 0, 1, 0, -0.853279, 0, -0.521454) -- Fixed Name
+    ["Lunar Islands"] = CFrame.new(-3615.954, 15.423, -1817.699, -0.521454, 0, 0.853279, 0, 1, 0, -0.853279, 0, -0.521454)
 }
 
 local boatTeleports = {
@@ -314,16 +313,14 @@ local boatTeleports = {
     ["Glacier Island"] = CFrame.new(2662.256, -6.468, 329.880, -0.753561, -0.000000, 0.657378, 0.000000, 1.000000, 0.000000, -0.657378, 0.000000, -0.753561),
     ["Mountain Island"] = CFrame.new(-7530.906, 9.253, 222.176, 0.745782, 0, 0.666190, 0, 1, 0, -0.666190, 0, 0.745782),
     ["Jungle Island"]   = CFrame.new(2758.440, 15.277, 2194.426, -0.396159, 0, 0.918182, 0, 1, 0, -0.918182, 0, -0.396159),
-    ["Lunar Islands"] = CFrame.new(-3508.798, 15.270, -1886.841, 0.208355, 0, -0.978053, 0, 1, 0, 0.978053, 0, 0.208355) -- Fixed Name
+    ["Lunar Islands"] = CFrame.new(-3508.798, 15.270, -1886.841, 0.208355, 0, -0.978053, 0, 1, 0, 0.978053, 0, 0.208355)
 }
 
--- 🔍 Renamed Function to avoid conflicts
 local function getTeleportIslandName()
     local islandsFolder = workspace:FindFirstChild("Islands")
     if not islandsFolder then return nil end
 
     for _, island in ipairs(islandsFolder:GetChildren()) do
-        -- Checking if the player's character is currently a child of the island
         if island:FindFirstChild(player.Name) then
             return island.Name 
         end
@@ -331,7 +328,6 @@ local function getTeleportIslandName()
     return nil
 end
 
--- 🚀 Universal Teleport Logic
 local function teleportToLocation(targetTable)
     local character = player.Character
     local rootPart = character and character:FindFirstChild("HumanoidRootPart")
@@ -355,20 +351,15 @@ task.spawn(function()
     local LocalPlayer = Players.LocalPlayer
 
     while true do
-        -- Use task.wait for better performance than wait()
         task.wait(autoclick_duration or 0.1) 
 
         if autoclick_enabled then
             pcall(function()
-                -- Calculate center but offset it slightly down 
-                -- This avoids the top-bar and potential UI scale buttons
                 local viewportSize = Camera.ViewportSize
                 local clickPosition = Vector2.new(viewportSize.X / 2, viewportSize.Y / 2)
 
-                -- Check if the player is currently in a menu/typing
                 local UserInputService = game:GetService("UserInputService")
                 if not UserInputService:GetFocusedTextBox() then
-                    -- Click the center of the world
                     VirtualUser:ClickButton1(clickPosition, Camera.CFrame)
                 end
             end)
@@ -376,7 +367,6 @@ task.spawn(function()
     end
 end)
 
--- 🔍 Detect Current Island
 local function getCurrentIsland()
     local islandsFolder = Workspace:FindFirstChild("Islands")
     if not islandsFolder then return nil end
@@ -454,19 +444,16 @@ task.spawn(function()
         local island = getCurrentIsland()
         if not island then continue end
 
-        -- find nearest horse
         lockedHorse = getNearestHorse(root, island)
 
         if lockedHorse and lockedHorse.Parent then
 
             idle_time = 0
 
-            -- disconnect old connection
             if followConnection then
                 followConnection:Disconnect()
             end
 
-            -- smooth follow lock
             followConnection = RunService.Heartbeat:Connect(function()
 
                 if not lockedHorse or not lockedHorse.Parent then
@@ -486,7 +473,6 @@ task.spawn(function()
             idle_time += 1
         end
 
-        -- if no horse for too long → random teleport
         if idle_time >= IDLE_LIMIT then
 
             if followConnection then
@@ -501,13 +487,11 @@ task.spawn(function()
 end)
 
 
--- Services
 local runService = game:GetService("RunService");
 local players = game:GetService("Players");
 local workspace = game:GetService("Workspace");
 local camera = workspace.CurrentCamera;
 
--- [[ FINAL INTEGRATED SETTINGS ]] --
 local ESP_CONFIG = {
     Enabled = false,
     ShowBoxes = false,
@@ -567,16 +551,13 @@ function HorseObject:Update()
 
     local pos, size = Vector2.new(minX, minY), Vector2.new(maxX - minX, maxY - minY)
     
-    -- 1. Sync Box
     self.box.Position = pos; self.boxOut.Position = pos; self.box.Size = size; self.boxOut.Size = size;
     self.box.Visible = ESP_CONFIG.ShowBoxes; self.boxOut.Visible = ESP_CONFIG.ShowBoxes;
     
-    -- 2. Sync Name (ABOVE BOX)
     self.name.Position = Vector2.new(pos.X + size.X/2, pos.Y - 25); self.nameOut.Position = self.name.Position;
     self.name.Text = "[HORSE]"; self.nameOut.Text = "[HORSE]";
     self.name.Visible = ESP_CONFIG.ShowNames; self.nameOut.Visible = ESP_CONFIG.ShowNames;
 
-    -- 3. Sync Health (ANIMATED BAR + STATIC FULL-WIDTH CONTAINER)
     if ESP_CONFIG.ShowHealth then
         for _, desc in pairs(self.model:GetDescendants()) do
             if desc:IsA("TextLabel") and desc.Text:find("/") then
@@ -586,11 +567,9 @@ function HorseObject:Update()
         end
         self.currentPct = self.currentPct + (self.targetPct - self.currentPct) * 0.1
         
-        -- Container (Outline) matches Box width
         self.healthOut.Position = Vector2.new(pos.X, pos.Y + size.Y + 5)
         self.healthOut.Size = Vector2.new(size.X, 4)
         
-        -- Filling Bar animates inside the Container
         self.health.Position = self.healthOut.Position
         self.health.Size = Vector2.new(size.X * self.currentPct, 4)
         
@@ -612,7 +591,6 @@ function HorseObject:Destruct()
     self.highlight:Destroy();
 end
 
--- Controller
 local HorseInterface = { _horseCache = {} };
 task.spawn(function()
     while true do
@@ -631,7 +609,6 @@ task.spawn(function()
     end
 end)
 
--- [[ UI LIBRARY START ]] --
 local repo = 'https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/'
 local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
 
@@ -729,7 +706,6 @@ LeftGroupBox:AddSlider('Idle_Limit', {
 
 local RightGroupBox = Tabs.Main:AddRightGroupbox('Training')
 
--- Change 'LeftGroupBox' to 'AddLeftGroupbox'
 local ESP = Tabs.Visuals:AddLeftGroupbox('Visuals')
 
 ESP:AddToggle('ESP_Enable', {
@@ -753,12 +729,11 @@ ESP:AddToggle('ESP_Box', {
 }):AddColorPicker('BoxColor', {
     Default = Color3.new(0.9804, 0.9804, 0.5765),
     Title = 'Box Color & Transparency',
-    Transparency = 0, -- Enables the slider
+    Transparency = 0, 
     Callback = function(Value)
         ESP_CONFIG.BoxColor = Value
     end
 }):OnChanged(function()
-    -- Sync the transparency value to your config
     ESP_CONFIG.BoxTransparency = Options.BoxColor.Transparency
 end)
 
@@ -796,7 +771,6 @@ ESP:AddToggle('ESP_Chams', {
         ESP_CONFIG.ChamColor = Value
     end
 }):OnChanged(function()
-    -- Sync the transparency value to your config
     ESP_CONFIG.ChamTransparency = Options.ChamColor.Transparency
 end)
 
@@ -853,33 +827,27 @@ local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local player = game:GetService("Players").LocalPlayer
 
--- Global variables to hold the settings
 getgenv().WalkSpeed_Enabled = false
 getgenv().WalkSpeed_Value = 16
 getgenv().JumpPower_Enabled = false
 getgenv().JumpPower_Value = 50
 
--- Loop to enforce WalkSpeed and JumpPower
 RunService.Heartbeat:Connect(function()
     local character = player.Character
     local humanoid = character and character:FindFirstChildOfClass("Humanoid")
     
     if humanoid then
-        -- Handle WalkSpeed
         if getgenv().WalkSpeed_Enabled then
             humanoid.WalkSpeed = getgenv().WalkSpeed_Value
         end
         
-        -- Handle JumpPower
         if getgenv().JumpPower_Enabled then
             humanoid.JumpPower = getgenv().JumpPower_Value
-            -- Ensure the humanoid is actually using the JumpPower property
             humanoid.UseJumpPower = true 
         end
     end
 end)
 
--- Toggle for Walkspeed
 Character:AddToggle('Walkspeed_Enable', {
     Text = 'Walkspeed',
     Default = false, 
@@ -890,7 +858,6 @@ Character:AddToggle('Walkspeed_Enable', {
     end
 })
 
--- Slider for Walkspeed
 Character:AddSlider('Walkspeed_amount', {
     Text = 'Walkspeed Amount',
     Default = 16,
@@ -904,7 +871,6 @@ Character:AddSlider('Walkspeed_amount', {
     end
 })
 
--- Toggle for JumpPower
 Character:AddToggle('Jumppower_Enable', {
     Text = 'JumpPower',
     Default = false,
@@ -915,7 +881,6 @@ Character:AddToggle('Jumppower_Enable', {
     end
 })
 
--- Slider for JumpPower
 Character:AddSlider('Jumppower_amount', {
     Text = 'JumpPower Amount',
     Default = 50,
@@ -944,7 +909,6 @@ getgenv().MountJumpValue = 50
 
 local cachedHorseHumanoid = nil
 
--- Background search thread (Throttled)
 task.spawn(function()
     while true do
         local char = player.Character
@@ -960,7 +924,6 @@ task.spawn(function()
                     for _, target in ipairs(island:GetDescendants()) do
                         if target:IsA("Model") and target:FindFirstChild("HumanoidRootPart") then
                             local hum = target:FindFirstChildOfClass("Humanoid")
-                            -- Detect by constraint type
                             if hum and (target:FindFirstChildWhichIsA("AlignPosition") or target:FindFirstChildWhichIsA("AlignOrientation")) then
                                 local dist = (hrp.Position - target.HumanoidRootPart.Position).Magnitude
                                 if dist < minDistance then
@@ -978,15 +941,12 @@ task.spawn(function()
     end
 end)
 
--- Main loop for applying stats
 RunService.Heartbeat:Connect(function()
     if cachedHorseHumanoid and cachedHorseHumanoid.Parent then
-        -- Apply Speed
         if getgenv().MountSpeedEnabled then
             cachedHorseHumanoid.WalkSpeed = getgenv().MountSpeedValue
         end
         
-        -- Apply Jump
         if getgenv().MountJumpEnabled then
             cachedHorseHumanoid.UseJumpPower = true
             cachedHorseHumanoid.JumpPower = getgenv().MountJumpValue
@@ -994,7 +954,6 @@ RunService.Heartbeat:Connect(function()
     end
 end)
 
--- Speed Logic Group
 Character:AddToggle('MountSpeedToggle', {
     Text = 'Enable Speed',
     Default = false,
@@ -1015,7 +974,6 @@ Character:AddSlider('MountSpeedSlider', {
     end
 })
 
--- Jump Logic Group
 Character:AddToggle('MountJumpToggle', {
     Text = 'Enable Jump',
     Default = false,
@@ -1036,10 +994,8 @@ Character:AddSlider('MountJumpSlider', {
     end
 })
 
--- [[ PLAYER UTILITIES SECTION ]] --
 local PlayerUtils = Tabs.Misc:AddRightGroupbox('Player Utilities')
 
--- Function to get up-to-date player names (excluding yourself)
 local function GetPlayerNames()
     local names = {}
     for _, v in pairs(game:GetService("Players"):GetPlayers()) do
@@ -1051,7 +1007,6 @@ local function GetPlayerNames()
     return names
 end
 
--- 1. Player Dropdown
 local PlayerSelector = PlayerUtils:AddDropdown('PlayerDropdown', {
     Values = GetPlayerNames(),
     Default = 1,
@@ -1060,13 +1015,11 @@ local PlayerSelector = PlayerUtils:AddDropdown('PlayerDropdown', {
     Tooltip = 'Automatically updates when players join/leave',
 })
 
--- 2. Auto-Refresh Logic
 game:GetService("Players").PlayerAdded:Connect(function()
     PlayerSelector:SetValues(GetPlayerNames())
 end)
 
 game:GetService("Players").PlayerRemoving:Connect(function()
-    -- If the player you were spectating leaves, reset camera
     if Toggles.SpectateToggle and Toggles.SpectateToggle.Value == true then
         if Options.PlayerDropdown.Value == nil or not game:GetService("Players"):FindFirstChild(Options.PlayerDropdown.Value) then
             Toggles.SpectateToggle:SetValue(false)
@@ -1075,7 +1028,6 @@ game:GetService("Players").PlayerRemoving:Connect(function()
     PlayerSelector:SetValues(GetPlayerNames())
 end)
 
--- 3. Teleport Button
 PlayerUtils:AddButton({
     Text = 'Teleport to Player',
     Func = function()
@@ -1084,7 +1036,6 @@ PlayerUtils:AddButton({
         local lp = game:GetService("Players").LocalPlayer
         
         if target and target.Character and lp.Character then
-            -- PivotTo is the modern, faster way to teleport
             lp.Character:PivotTo(target.Character:GetPivot())
         else
             Library:Notify("Could not teleport: Player or Character missing.", 3)
@@ -1092,7 +1043,6 @@ PlayerUtils:AddButton({
     end
 })
 
--- 4. Spectate Toggle
 PlayerUtils:AddToggle('SpectateToggle', {
     Text = 'Spectate Player',
     Default = false,
@@ -1109,11 +1059,9 @@ PlayerUtils:AddToggle('SpectateToggle', {
                 cam.CameraSubject = target.Character:FindFirstChildOfClass("Humanoid")
             else
                 Library:Notify("Target not found. Disabling spectate.", 2)
-                -- This forces the toggle back to OFF visually
                 task.spawn(function() Toggles.SpectateToggle:SetValue(false) end)
             end
         else
-            -- Reset to LocalPlayer
             if lp.Character and lp.Character:FindFirstChildOfClass("Humanoid") then
                 cam.CameraSubject = lp.Character:FindFirstChildOfClass("Humanoid")
             end
@@ -1121,7 +1069,6 @@ PlayerUtils:AddToggle('SpectateToggle', {
     end
 })
 
--- 5. Force Refresh (Manual backup)
 PlayerUtils:AddButton({
     Text = 'Force Refresh List',
     Func = function()
@@ -1151,7 +1098,6 @@ local MyButton = Others:AddButton({
         local character = player.Character or player.CharacterAdded:Wait()
         local root = character:WaitForChild("HumanoidRootPart")
             
-        -- Function to format CFrame properly
         local function formatCFrame(cf)
             local components = {cf:GetComponents()}
             return string.format(
@@ -1162,7 +1108,6 @@ local MyButton = Others:AddButton({
         
         local formatted = formatCFrame(root.CFrame)
         
-        -- Copy to clipboard (executor required)
         if setclipboard then
             setclipboard(formatted)
             print("Copied CFrame to clipboard:")
@@ -1200,17 +1145,15 @@ Others:AddToggle('NoGraphics', {
 
     Callback = function(Value)
         if Value == true then
-            -- Disable 3D rendering
             game:GetService("RunService"):Set3dRenderingEnabled(false)
         else
-            -- Re-enable 3D rendering
             game:GetService("RunService"):Set3dRenderingEnabled(true)
         end
     end
 })
 
 local isFPSEnabled = false
-local currentFPSCap = 60 -- Store the slider value here
+local currentFPSCap = 60 
 
 Others:AddToggle('SetFPS', {
     Text = 'FPS Cap',
@@ -1220,10 +1163,8 @@ Others:AddToggle('SetFPS', {
     Callback = function(Value)
         isFPSEnabled = Value
         if isFPSEnabled then
-            -- Apply the saved slider value
             setfpscap(currentFPSCap)
         else
-            -- Disable the cap (0 = default/unlimited)
             setfpscap(0) 
         end
     end
@@ -1238,23 +1179,20 @@ Others:AddSlider('FPSCap', {
     Compact = false,
 
     Callback = function(Value)
-        currentFPSCap = Value -- Save the slider value to our variable
+        currentFPSCap = Value 
         
-        -- Only apply the change if the toggle is currently ON
         if isFPSEnabled then
             setfpscap(Value)
         end
     end
 })
 
--- 📊 Stats Tracking
 local sessionStart = tick()
 local horsesCaught = 0
 
 local TimeLabel = LeftGroupBox:AddLabel('Time Played: 0s')
 local HorsesLabel = LeftGroupBox:AddLabel('Horses Caught: 0')
 
--- ⏱ Time Played Updater
 task.spawn(function()
     while true do
         task.wait(1)
@@ -1294,7 +1232,7 @@ local WatermarkConnection = game:GetService('RunService').RenderStepped:Connect(
     ));
 end);
 
-Library.KeybindFrame.Visible = true; -- todo: add a function for this
+Library.KeybindFrame.Visible = true;
 
 Library:OnUnload(function()
     WatermarkConnection:Disconnect()
