@@ -5,8 +5,9 @@ local Players = game:GetService("Players")
 
 local player = Players.LocalPlayer
 
-local autofarm_enabled = false
-local autoclick_enabled = false
+-- ✅ TOGGLE HERE
+local autofarm_enabled = false -- set to false to disable autofarm
+local autoclick_enabled = false -- set to false to disable autoclick
 local autoclick_duration = 0.05
 
 local HOVER_HEIGHT = 6
@@ -124,6 +125,57 @@ local IslandTeleports = {
         CFrame.new(62.058, 15.404, 4269.560, 0.020223, 0.000000, -0.999795, 0.000000, 1.000000, 0.000000, 0.999795, -0.000000, 0.020223),
         CFrame.new(476.299, 15.404, 3826.276, 0.890786, -0.000000, -0.454423, -0.000000, 1.000000, -0.000000, 0.454423, 0.000000, 0.890786)
     },
+    ["Glacier Island"] = {
+        CFrame.new(2400.878, -10.504, -3.798, -0.293389, 0.000000, 0.955993, -0.000000, 1.000000, -0.000000, -0.955993, -0.000000, -0.293389),
+        CFrame.new(2197.143, 25.029, 51.597, -0.895651, -0.000000, 0.444758, -0.000000, 1.000000, -0.000000, -0.444758, -0.000000, -0.895651),
+        CFrame.new(2993.914, -7.018, 89.664, 0.920103, 0.000000, 0.391677, -0.000000, 1.000000, 0.000000, -0.391677, -0.000000, 0.920103),
+        CFrame.new(3254.097, -7.002, 78.091, 0.039642, 0.000000, -0.999214, -0.000000, 1.000000, 0.000000, 0.999214, -0.000000, 0.039642),
+        CFrame.new(3527.007, -7.002, 77.846, -0.293532, -0.000000, -0.955949, 0.000000, 1.000000, -0.000000, 0.955949, -0.000000, -0.293532),
+        CFrame.new(3183.226, 82.592, -231.937, -0.819137, 0.000000, 0.573598, 0.000000, 1.000000, -0.000000, -0.573598, 0.000000, -0.819137),
+        CFrame.new(3272.057, 82.592, -113.594, -0.837187, -0.000000, -0.546917, 0.000000, 1.000000, -0.000000, 0.546917, -0.000000, -0.837187),
+        CFrame.new(3364.805, 82.592, -71.182, 0.110966, -0.000000, -0.993824, -0.000000, 1.000000, -0.000000, 0.993824, 0.000000, 0.110966),
+        CFrame.new(3132.977, 82.592, -128.275, 0.043340, -0.000000, 0.999060, -0.000000, 1.000000, 0.000000, -0.999060, -0.000000, 0.043340),
+        CFrame.new(3198.475, 116.948, -412.867, 0.273361, -0.000000, 0.961911, -0.000000, 1.000000, 0.000000, -0.961911, -0.000000, 0.273361),
+        CFrame.new(2849.397, 116.998, -367.796, -0.000623, -0.000000, 1.000000, 0.000000, 1.000000, 0.000000, -1.000000, 0.000000, -0.000623),
+        CFrame.new(2618.713, 116.389, -379.632, 0.715373, 0.000000, 0.698743, -0.000000, 1.000000, -0.000000, -0.698743, -0.000000, 0.715373),
+        CFrame.new(2563.353, 116.389, -728.223, 0.861281, -0.000000, -0.508129, 0.000000, 1.000000, -0.000000, 0.508129, 0.000000, 0.861281),
+        CFrame.new(2389.108, 116.998, -475.673, -0.162055, -0.000000, 0.986782, 0.000000, 1.000000, 0.000000, -0.986782, 0.000000, -0.162055),
+        CFrame.new(2292.616, 116.998, -542.623, 0.897960, -0.000000, 0.440077, -0.000000, 1.000000, 0.000000, -0.440077, -0.000000, 0.897960),
+        CFrame.new(2183.349, 166.967, -405.284, -0.527489, -0.000000, 0.849562, 0.000000, 1.000000, 0.000000, -0.849562, 0.000000, -0.527489),
+        CFrame.new(2053.532, 173.773, -469.023, -0.073158, -0.000000, 0.997320, 0.000000, 1.000000, 0.000000, -0.997320, 0.000000, -0.073158),
+        CFrame.new(2197.752, 186.264, -596.579, 0.316232, 0.000000, -0.948682, 0.000000, 1.000000, 0.000000, 0.948682, -0.000000, 0.316232),
+        CFrame.new(2416.479, 186.264, -599.388, 0.075444, -0.000000, -0.997150, 0.000000, 1.000000, -0.000000, 0.997150, 0.000000, 0.075444),
+        CFrame.new(2702.472, 193.545, -634.575, -0.066647, 0.000000, -0.997777, -0.000000, 1.000000, 0.000000, 0.997777, 0.000000, -0.066647),
+        CFrame.new(2692.565, 193.534, -766.698, 0.796939, -0.000000, -0.604060, -0.000000, 1.000000, -0.000000, 0.604060, 0.000000, 0.796939),
+        CFrame.new(2768.410, 201.882, -1040.510, 0.999988, -0.000000, 0.004846, 0.000000, 1.000000, 0.000000, -0.004846, -0.000000, 0.999988),
+        CFrame.new(2815.325, 200.576, -993.692, -0.470508, 0.000000, -0.882396, 0.000000, 1.000000, 0.000000, 0.882396, 0.000000, -0.470508),
+        CFrame.new(2662.499, 224.998, -1049.144, -0.962307, 0.000000, 0.271965, 0.000000, 1.000000, -0.000000, -0.271965, -0.000000, -0.962307),
+        CFrame.new(2556.227, 255.216, -915.980, 0.495420, 0.000000, 0.868654, 0.000000, 1.000000, -0.000000, -0.868654, 0.000000, 0.495420),
+        CFrame.new(2487.840, 255.217, -927.118, -0.403209, 0.000000, 0.915108, 0.000000, 1.000000, -0.000000, -0.915108, -0.000000, -0.403209),
+        CFrame.new(2425.859, 275.749, -1105.462, 0.892337, -0.000000, 0.451369, 0.000000, 1.000000, -0.000000, -0.451369, 0.000000, 0.892337),
+        CFrame.new(2358.345, 280.232, -1206.390, 0.825089, 0.000000, 0.565002, 0.000000, 1.000000, -0.000000, -0.565002, 0.000000, 0.825089),
+        CFrame.new(2351.815, 256.992, -887.120, -0.794428, -0.000000, 0.607358, 0.000000, 1.000000, 0.000000, -0.607358, 0.000000, -0.794428),
+        CFrame.new(2135.493, 255.326, -878.545, -0.188005, 0.000000, 0.982168, -0.000000, 1.000000, -0.000000, -0.982168, -0.000000, -0.188005),
+        CFrame.new(2216.487, 316.845, -1213.264, -0.910133, 0.000000, -0.414316, 0.000000, 1.000000, 0.000000, 0.414316, 0.000000, -0.910133),
+        CFrame.new(2070.611, 360.757, -1132.188, -0.641953, 0.000000, -0.766744, 0.000000, 1.000000, 0.000000, 0.766744, 0.000000, -0.641953),
+        CFrame.new(2073.024, 329.226, -1267.795, -0.401489, -0.000000, -0.915864, -0.000000, 1.000000, -0.000000, 0.915864, 0.000000, -0.401489),
+        CFrame.new(3052.000, 146.935, -1236.844, 0.061776, -0.000000, -0.998090, 0.000000, 1.000000, -0.000000, 0.998090, -0.000000, 0.061776),
+        CFrame.new(3003.948, 148.815, -1124.271, -0.980462, 0.000000, -0.196708, 0.000000, 1.000000, -0.000000, 0.196708, -0.000000, -0.980462),
+        CFrame.new(3216.661, 146.842, -1222.549, 0.482906, 0.000000, -0.875672, -0.000000, 1.000000, 0.000000, 0.875672, 0.000000, 0.482906),
+        CFrame.new(3172.916, 146.842, -997.427, -0.904359, 0.000000, 0.426773, -0.000000, 1.000000, -0.000000, -0.426773, -0.000000, -0.904359),
+        CFrame.new(3027.217, 154.722, -680.357, -0.751371, 0.000000, 0.659880, -0.000000, 1.000000, -0.000000, -0.659880, -0.000000, -0.751371),
+        CFrame.new(2987.953, 147.525, -861.088, 0.656116, 0.000000, -0.754660, 0.000000, 1.000000, 0.000000, 0.754660, -0.000000, 0.656116),
+        CFrame.new(3392.629, 147.122, -737.173, -0.744118, -0.000000, 0.668049, -0.000000, 1.000000, -0.000000, -0.668049, -0.000000, -0.744118),
+        CFrame.new(3160.088, 147.395, -597.373, -0.905875, 0.000000, -0.423546, 0.000000, 1.000000, 0.000000, 0.423546, -0.000000, -0.905875),
+        CFrame.new(3007.762, 28.994, -757.581, -0.616086, -0.000000, 0.787679, 0.000000, 1.000000, 0.000000, -0.787679, 0.000000, -0.616086),
+        CFrame.new(2821.434, 31.060, -722.676, -0.161401, 0.000000, -0.986889, -0.000000, 1.000000, 0.000000, 0.986889, 0.000000, -0.161401),
+        CFrame.new(2885.220, 27.186, -620.042, 0.929208, -0.000000, 0.369558, 0.000000, 1.000000, 0.000000, -0.369558, -0.000000, 0.929208),
+        CFrame.new(3200.757, -7.745, -755.416, -0.109131, -0.000000, 0.994027, -0.000000, 1.000000, 0.000000, -0.994027, -0.000000, -0.109131),
+        CFrame.new(3150.148, -7.018, -989.735, 0.789689, 0.000000, 0.613507, -0.000000, 1.000000, 0.000000, -0.613507, -0.000000, 0.789689),
+        CFrame.new(2523.225, -7.002, -503.811, -0.941150, 0.000000, 0.337988, 0.000000, 1.000000, 0.000000, -0.337988, 0.000000, -0.941150),
+        CFrame.new(2536.531, -7.002, -396.331, -0.998193, -0.000000, -0.060086, -0.000000, 1.000000, 0.000000, 0.060086, 0.000000, -0.998193),
+        CFrame.new(2378.865, -7.018, -490.483, -0.807392, 0.000000, 0.590016, 0.000000, 1.000000, -0.000000, -0.590016, -0.000000, -0.807392)
+    },
     ["Mountain Island"] = {
         CFrame.new(-7214.773, 32.530, 287.288, 0.491617, 0.000000, -0.870812, -0.000000, 1.000000, 0.000000, 0.870812, -0.000000, 0.491617),
         CFrame.new(-7006.402, 126.644, 165.479, 0.217954, -0.000000, -0.975959, -0.000000, 1.000000, -0.000000, 0.975959, 0.000000, 0.217954),
@@ -239,17 +291,6 @@ local IslandTeleports = {
     }
 }
 
-local larryTeleports = {
-    ["Mainland"] = CFrame.new(34.923, 14.990, -470.256, -0.987316, 0, 0.158766, 0, 1, 0, -0.158766, 0, -0.987316),
-    ["Blizzard Island"] = CFrame.new(-395.354, 15.404, -3828.735, -0.763117, 0, 0.646261, 0, 1, 0, -0.646261, 0, -0.763117),
-    ["Forest Island"]   = CFrame.new(-7436.085, 28.764, 4508.391, -0.889721, 0, 0.456505, 0, 1, 0, -0.456505, 0, -0.889721),
-    ["Royal Island"]    = CFrame.new(705.109, 20.252, -5111.376, 0.731477, 0, 0.681866, 0, 1, 0, -0.681866, 0, 0.731477),
-    ["Desert Island"]   = CFrame.new(826.356, 40.998, 3601.169, 0.420382, 0, -0.907347, 0, 1, 0, 0.907347, 0, 0.420382),
-    ["Mountain Island"] = CFrame.new(-7155.097, 9.071, 460.569, 0.286330, 0, -0.958131, 0, 1, 0, 0.958131, 0, 0.286330),
-    ["Jungle Island"]   = CFrame.new(3074.222, 52.998, 2183.594, 0.172924, 0, -0.984935, 0, 1, 0, 0.984935, 0, 0.172924),
-    ["Lunar Islands"]    = CFrame.new(-3615.954, 15.423, -1817.699, -0.521454, 0, 0.853279, 0, 1, 0, -0.853279, 0, -0.521454)
-}
-
 local player = game:GetService("Players").LocalPlayer
 
 local larryTeleports = {
@@ -258,9 +299,10 @@ local larryTeleports = {
     ["Forest Island"]   = CFrame.new(-7436.085, 28.764, 4508.391, -0.889721, 0, 0.456505, 0, 1, 0, -0.456505, 0, -0.889721),
     ["Royal Island"]    = CFrame.new(705.109, 20.252, -5111.376, 0.731477, 0, 0.681866, 0, 1, 0, -0.681866, 0, 0.731477),
     ["Desert Island"]   = CFrame.new(826.356, 40.998, 3601.169, 0.420382, 0, -0.907347, 0, 1, 0, 0.907347, 0, 0.420382),
+    ["Glacier Island"] = CFrame.new(2702.397, -7.018, -40.926, -0.079052, 0.000000, 0.996871, 0.000000, 1.000000, -0.000000, -0.996871, 0.000000, -0.079052),
     ["Mountain Island"] = CFrame.new(-7155.097, 9.071, 460.569, 0.286330, 0, -0.958131, 0, 1, 0, 0.958131, 0, 0.286330),
     ["Jungle Island"]   = CFrame.new(3074.222, 52.998, 2183.594, 0.172924, 0, -0.984935, 0, 1, 0, 0.984935, 0, 0.172924),
-    ["Lunar Islands"] = CFrame.new(-3615.954, 15.423, -1817.699, -0.521454, 0, 0.853279, 0, 1, 0, -0.853279, 0, -0.521454)
+    ["Lunar Islands"] = CFrame.new(-3615.954, 15.423, -1817.699, -0.521454, 0, 0.853279, 0, 1, 0, -0.853279, 0, -0.521454) -- Fixed Name
 }
 
 local boatTeleports = {
@@ -269,16 +311,19 @@ local boatTeleports = {
     ["Forest Island"]   = CFrame.new(-7091.160, 19.167, 4562.860, -0.464963, 0, -0.885330, 0, 1, 0, 0.885330, 0, -0.464963),
     ["Royal Island"]    = CFrame.new(886.675, 13.871, -4781.455, -0.996450, 0, -0.084187, 0, 1, 0, 0.084187, 0, -0.996450),
     ["Desert Island"]   = CFrame.new(744.558, 9.802, 3289.691, 0.941137, 0, 0.338026, 0, 1, 0, -0.338026, 0, 0.941137),
+    ["Glacier Island"] = CFrame.new(2662.256, -6.468, 329.880, -0.753561, -0.000000, 0.657378, 0.000000, 1.000000, 0.000000, -0.657378, 0.000000, -0.753561),
     ["Mountain Island"] = CFrame.new(-7530.906, 9.253, 222.176, 0.745782, 0, 0.666190, 0, 1, 0, -0.666190, 0, 0.745782),
     ["Jungle Island"]   = CFrame.new(2758.440, 15.277, 2194.426, -0.396159, 0, 0.918182, 0, 1, 0, -0.918182, 0, -0.396159),
-    ["Lunar Islands"] = CFrame.new(-3508.798, 15.270, -1886.841, 0.208355, 0, -0.978053, 0, 1, 0, 0.978053, 0, 0.208355)
+    ["Lunar Islands"] = CFrame.new(-3508.798, 15.270, -1886.841, 0.208355, 0, -0.978053, 0, 1, 0, 0.978053, 0, 0.208355) -- Fixed Name
 }
 
+-- 🔍 Renamed Function to avoid conflicts
 local function getTeleportIslandName()
     local islandsFolder = workspace:FindFirstChild("Islands")
     if not islandsFolder then return nil end
 
     for _, island in ipairs(islandsFolder:GetChildren()) do
+        -- Checking if the player's character is currently a child of the island
         if island:FindFirstChild(player.Name) then
             return island.Name 
         end
@@ -286,6 +331,7 @@ local function getTeleportIslandName()
     return nil
 end
 
+-- 🚀 Universal Teleport Logic
 local function teleportToLocation(targetTable)
     local character = player.Character
     local rootPart = character and character:FindFirstChild("HumanoidRootPart")
@@ -309,15 +355,20 @@ task.spawn(function()
     local LocalPlayer = Players.LocalPlayer
 
     while true do
+        -- Use task.wait for better performance than wait()
         task.wait(autoclick_duration or 0.1) 
 
         if autoclick_enabled then
             pcall(function()
+                -- Calculate center but offset it slightly down 
+                -- This avoids the top-bar and potential UI scale buttons
                 local viewportSize = Camera.ViewportSize
                 local clickPosition = Vector2.new(viewportSize.X / 2, viewportSize.Y / 2)
 
+                -- Check if the player is currently in a menu/typing
                 local UserInputService = game:GetService("UserInputService")
                 if not UserInputService:GetFocusedTextBox() then
+                    -- Click the center of the world
                     VirtualUser:ClickButton1(clickPosition, Camera.CFrame)
                 end
             end)
@@ -325,6 +376,7 @@ task.spawn(function()
     end
 end)
 
+-- 🔍 Detect Current Island
 local function getCurrentIsland()
     local islandsFolder = Workspace:FindFirstChild("Islands")
     if not islandsFolder then return nil end
@@ -402,16 +454,19 @@ task.spawn(function()
         local island = getCurrentIsland()
         if not island then continue end
 
+        -- find nearest horse
         lockedHorse = getNearestHorse(root, island)
 
         if lockedHorse and lockedHorse.Parent then
 
             idle_time = 0
 
+            -- disconnect old connection
             if followConnection then
                 followConnection:Disconnect()
             end
 
+            -- smooth follow lock
             followConnection = RunService.Heartbeat:Connect(function()
 
                 if not lockedHorse or not lockedHorse.Parent then
@@ -431,6 +486,7 @@ task.spawn(function()
             idle_time += 1
         end
 
+        -- if no horse for too long → random teleport
         if idle_time >= IDLE_LIMIT then
 
             if followConnection then
@@ -445,11 +501,13 @@ task.spawn(function()
 end)
 
 
+-- Services
 local runService = game:GetService("RunService");
 local players = game:GetService("Players");
 local workspace = game:GetService("Workspace");
 local camera = workspace.CurrentCamera;
 
+-- [[ FINAL INTEGRATED SETTINGS ]] --
 local ESP_CONFIG = {
     Enabled = false,
     ShowBoxes = false,
@@ -509,13 +567,16 @@ function HorseObject:Update()
 
     local pos, size = Vector2.new(minX, minY), Vector2.new(maxX - minX, maxY - minY)
     
+    -- 1. Sync Box
     self.box.Position = pos; self.boxOut.Position = pos; self.box.Size = size; self.boxOut.Size = size;
     self.box.Visible = ESP_CONFIG.ShowBoxes; self.boxOut.Visible = ESP_CONFIG.ShowBoxes;
     
+    -- 2. Sync Name (ABOVE BOX)
     self.name.Position = Vector2.new(pos.X + size.X/2, pos.Y - 25); self.nameOut.Position = self.name.Position;
     self.name.Text = "[HORSE]"; self.nameOut.Text = "[HORSE]";
     self.name.Visible = ESP_CONFIG.ShowNames; self.nameOut.Visible = ESP_CONFIG.ShowNames;
 
+    -- 3. Sync Health (ANIMATED BAR + STATIC FULL-WIDTH CONTAINER)
     if ESP_CONFIG.ShowHealth then
         for _, desc in pairs(self.model:GetDescendants()) do
             if desc:IsA("TextLabel") and desc.Text:find("/") then
@@ -525,9 +586,11 @@ function HorseObject:Update()
         end
         self.currentPct = self.currentPct + (self.targetPct - self.currentPct) * 0.1
         
+        -- Container (Outline) matches Box width
         self.healthOut.Position = Vector2.new(pos.X, pos.Y + size.Y + 5)
         self.healthOut.Size = Vector2.new(size.X, 4)
         
+        -- Filling Bar animates inside the Container
         self.health.Position = self.healthOut.Position
         self.health.Size = Vector2.new(size.X * self.currentPct, 4)
         
@@ -549,6 +612,7 @@ function HorseObject:Destruct()
     self.highlight:Destroy();
 end
 
+-- Controller
 local HorseInterface = { _horseCache = {} };
 task.spawn(function()
     while true do
@@ -567,6 +631,7 @@ task.spawn(function()
     end
 end)
 
+-- [[ UI LIBRARY START ]] --
 local repo = 'https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/'
 local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
 
@@ -606,7 +671,7 @@ local LeftGroupBox = Tabs.Main:AddLeftGroupbox('Island')
 LeftGroupBox:AddToggle('Autofarm_Enable', {
     Text = 'Enable',
     Default = false, -- Default value (true / false)
-    Tooltip = 'Enables Autofarm',
+    Tooltip = 'Enables Autofarm', -- Information shown when you hover over the toggle
 
     Callback = function(Value)
         autofarm_enabled = Value
@@ -664,6 +729,7 @@ LeftGroupBox:AddSlider('Idle_Limit', {
 
 local RightGroupBox = Tabs.Main:AddRightGroupbox('Training')
 
+-- Change 'LeftGroupBox' to 'AddLeftGroupbox'
 local ESP = Tabs.Visuals:AddLeftGroupbox('Visuals')
 
 ESP:AddToggle('ESP_Enable', {
@@ -687,11 +753,12 @@ ESP:AddToggle('ESP_Box', {
 }):AddColorPicker('BoxColor', {
     Default = Color3.new(0.9804, 0.9804, 0.5765),
     Title = 'Box Color & Transparency',
-    Transparency = 0,
+    Transparency = 0, -- Enables the slider
     Callback = function(Value)
         ESP_CONFIG.BoxColor = Value
     end
 }):OnChanged(function()
+    -- Sync the transparency value to your config
     ESP_CONFIG.BoxTransparency = Options.BoxColor.Transparency
 end)
 
@@ -705,8 +772,8 @@ ESP:AddToggle('ESP_Names', {
     end
 }):AddColorPicker('BoxColor', {
     Default = Color3.new(0.9804, 0.9804, 0.5765),
-    Title = 'Some color',
-    Transparency = 0, 
+    Title = 'Some color', -- Optional. Allows you to have a custom color picker title (when you open it)
+    Transparency = 0, -- Optional. Enables transparency changing for this color picker (leave as nil to disable)
 
     Callback = function(Value)
         ESP_CONFIG.NameColor = Value
@@ -724,11 +791,12 @@ ESP:AddToggle('ESP_Chams', {
 }):AddColorPicker('ChamColor', {
     Default = Color3.new(0.9804, 0.9804, 0.5765),
     Title = 'Cham Color & Transparency',
-    Transparency = 0,
+    Transparency = 0, -- Enables the slider
     Callback = function(Value)
         ESP_CONFIG.ChamColor = Value
     end
 }):OnChanged(function()
+    -- Sync the transparency value to your config
     ESP_CONFIG.ChamTransparency = Options.ChamColor.Transparency
 end)
 
@@ -743,21 +811,21 @@ ESP:AddToggle('ESP_Progress', {
 }):AddColorPicker('ESP_Progress_Color1', {
     Default = Color3.new(1, 0, 0),
     Title = 'Empty',
-    Transparency = 0,
+    Transparency = 0, -- Enables the slider
     Callback = function(Value)
         ESP_CONFIG.ColorTable.Empty = Value
     end
 }):AddColorPicker('ESP_Progress_Color2', {
     Default = Color3.new(1, 1, 0),
     Title = 'Half',
-    Transparency = 0,
+    Transparency = 0, -- Enables the slider
     Callback = function(Value)
         ESP_CONFIG.ColorTable.Half = Value
     end
 }):AddColorPicker('ESP_Progress_Color3', {
     Default = Color3.new(0, 1, 0),
     Title = 'Full',
-    Transparency = 0,
+    Transparency = 0, -- Enables the slider
     Callback = function(Value)
         ESP_CONFIG.ColorTable.Full = Value
     end
@@ -785,27 +853,33 @@ local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local player = game:GetService("Players").LocalPlayer
 
+-- Global variables to hold the settings
 getgenv().WalkSpeed_Enabled = false
 getgenv().WalkSpeed_Value = 16
 getgenv().JumpPower_Enabled = false
 getgenv().JumpPower_Value = 50
 
+-- Loop to enforce WalkSpeed and JumpPower
 RunService.Heartbeat:Connect(function()
     local character = player.Character
     local humanoid = character and character:FindFirstChildOfClass("Humanoid")
     
     if humanoid then
+        -- Handle WalkSpeed
         if getgenv().WalkSpeed_Enabled then
             humanoid.WalkSpeed = getgenv().WalkSpeed_Value
         end
         
+        -- Handle JumpPower
         if getgenv().JumpPower_Enabled then
             humanoid.JumpPower = getgenv().JumpPower_Value
+            -- Ensure the humanoid is actually using the JumpPower property
             humanoid.UseJumpPower = true 
         end
     end
 end)
 
+-- Toggle for Walkspeed
 Character:AddToggle('Walkspeed_Enable', {
     Text = 'Walkspeed',
     Default = false, 
@@ -816,6 +890,7 @@ Character:AddToggle('Walkspeed_Enable', {
     end
 })
 
+-- Slider for Walkspeed
 Character:AddSlider('Walkspeed_amount', {
     Text = 'Walkspeed Amount',
     Default = 16,
@@ -829,6 +904,7 @@ Character:AddSlider('Walkspeed_amount', {
     end
 })
 
+-- Toggle for JumpPower
 Character:AddToggle('Jumppower_Enable', {
     Text = 'JumpPower',
     Default = false,
@@ -839,6 +915,7 @@ Character:AddToggle('Jumppower_Enable', {
     end
 })
 
+-- Slider for JumpPower
 Character:AddSlider('Jumppower_amount', {
     Text = 'JumpPower Amount',
     Default = 50,
@@ -867,6 +944,7 @@ getgenv().MountJumpValue = 50
 
 local cachedHorseHumanoid = nil
 
+-- Background search thread (Throttled)
 task.spawn(function()
     while true do
         local char = player.Character
@@ -882,6 +960,7 @@ task.spawn(function()
                     for _, target in ipairs(island:GetDescendants()) do
                         if target:IsA("Model") and target:FindFirstChild("HumanoidRootPart") then
                             local hum = target:FindFirstChildOfClass("Humanoid")
+                            -- Detect by constraint type
                             if hum and (target:FindFirstChildWhichIsA("AlignPosition") or target:FindFirstChildWhichIsA("AlignOrientation")) then
                                 local dist = (hrp.Position - target.HumanoidRootPart.Position).Magnitude
                                 if dist < minDistance then
@@ -899,12 +978,15 @@ task.spawn(function()
     end
 end)
 
+-- Main loop for applying stats
 RunService.Heartbeat:Connect(function()
     if cachedHorseHumanoid and cachedHorseHumanoid.Parent then
+        -- Apply Speed
         if getgenv().MountSpeedEnabled then
             cachedHorseHumanoid.WalkSpeed = getgenv().MountSpeedValue
         end
         
+        -- Apply Jump
         if getgenv().MountJumpEnabled then
             cachedHorseHumanoid.UseJumpPower = true
             cachedHorseHumanoid.JumpPower = getgenv().MountJumpValue
@@ -912,6 +994,7 @@ RunService.Heartbeat:Connect(function()
     end
 end)
 
+-- Speed Logic Group
 Character:AddToggle('MountSpeedToggle', {
     Text = 'Enable Speed',
     Default = false,
@@ -926,12 +1009,13 @@ Character:AddSlider('MountSpeedSlider', {
     Min = 16,
     Max = 500,
     Rounding = 1,
-    Compact = true,
+    Compact = true, -- Using compact = true saves vertical space
     Callback = function(Value) 
         getgenv().MountSpeedValue = Value 
     end
 })
 
+-- Jump Logic Group
 Character:AddToggle('MountJumpToggle', {
     Text = 'Enable Jump',
     Default = false,
@@ -952,8 +1036,10 @@ Character:AddSlider('MountJumpSlider', {
     end
 })
 
+-- [[ PLAYER UTILITIES SECTION ]] --
 local PlayerUtils = Tabs.Misc:AddRightGroupbox('Player Utilities')
 
+-- Function to get up-to-date player names (excluding yourself)
 local function GetPlayerNames()
     local names = {}
     for _, v in pairs(game:GetService("Players"):GetPlayers()) do
@@ -965,6 +1051,7 @@ local function GetPlayerNames()
     return names
 end
 
+-- 1. Player Dropdown
 local PlayerSelector = PlayerUtils:AddDropdown('PlayerDropdown', {
     Values = GetPlayerNames(),
     Default = 1,
@@ -973,11 +1060,13 @@ local PlayerSelector = PlayerUtils:AddDropdown('PlayerDropdown', {
     Tooltip = 'Automatically updates when players join/leave',
 })
 
+-- 2. Auto-Refresh Logic
 game:GetService("Players").PlayerAdded:Connect(function()
     PlayerSelector:SetValues(GetPlayerNames())
 end)
 
 game:GetService("Players").PlayerRemoving:Connect(function()
+    -- If the player you were spectating leaves, reset camera
     if Toggles.SpectateToggle and Toggles.SpectateToggle.Value == true then
         if Options.PlayerDropdown.Value == nil or not game:GetService("Players"):FindFirstChild(Options.PlayerDropdown.Value) then
             Toggles.SpectateToggle:SetValue(false)
@@ -986,6 +1075,7 @@ game:GetService("Players").PlayerRemoving:Connect(function()
     PlayerSelector:SetValues(GetPlayerNames())
 end)
 
+-- 3. Teleport Button
 PlayerUtils:AddButton({
     Text = 'Teleport to Player',
     Func = function()
@@ -994,6 +1084,7 @@ PlayerUtils:AddButton({
         local lp = game:GetService("Players").LocalPlayer
         
         if target and target.Character and lp.Character then
+            -- PivotTo is the modern, faster way to teleport
             lp.Character:PivotTo(target.Character:GetPivot())
         else
             Library:Notify("Could not teleport: Player or Character missing.", 3)
@@ -1001,6 +1092,7 @@ PlayerUtils:AddButton({
     end
 })
 
+-- 4. Spectate Toggle
 PlayerUtils:AddToggle('SpectateToggle', {
     Text = 'Spectate Player',
     Default = false,
@@ -1017,9 +1109,11 @@ PlayerUtils:AddToggle('SpectateToggle', {
                 cam.CameraSubject = target.Character:FindFirstChildOfClass("Humanoid")
             else
                 Library:Notify("Target not found. Disabling spectate.", 2)
+                -- This forces the toggle back to OFF visually
                 task.spawn(function() Toggles.SpectateToggle:SetValue(false) end)
             end
         else
+            -- Reset to LocalPlayer
             if lp.Character and lp.Character:FindFirstChildOfClass("Humanoid") then
                 cam.CameraSubject = lp.Character:FindFirstChildOfClass("Humanoid")
             end
@@ -1027,6 +1121,7 @@ PlayerUtils:AddToggle('SpectateToggle', {
     end
 })
 
+-- 5. Force Refresh (Manual backup)
 PlayerUtils:AddButton({
     Text = 'Force Refresh List',
     Func = function()
@@ -1056,6 +1151,7 @@ local MyButton = Others:AddButton({
         local character = player.Character or player.CharacterAdded:Wait()
         local root = character:WaitForChild("HumanoidRootPart")
             
+        -- Function to format CFrame properly
         local function formatCFrame(cf)
             local components = {cf:GetComponents()}
             return string.format(
@@ -1066,6 +1162,7 @@ local MyButton = Others:AddButton({
         
         local formatted = formatCFrame(root.CFrame)
         
+        -- Copy to clipboard (executor required)
         if setclipboard then
             setclipboard(formatted)
             print("Copied CFrame to clipboard:")
@@ -1103,15 +1200,17 @@ Others:AddToggle('NoGraphics', {
 
     Callback = function(Value)
         if Value == true then
+            -- Disable 3D rendering
             game:GetService("RunService"):Set3dRenderingEnabled(false)
         else
+            -- Re-enable 3D rendering
             game:GetService("RunService"):Set3dRenderingEnabled(true)
         end
     end
 })
 
 local isFPSEnabled = false
-local currentFPSCap = 60 
+local currentFPSCap = 60 -- Store the slider value here
 
 Others:AddToggle('SetFPS', {
     Text = 'FPS Cap',
@@ -1121,8 +1220,10 @@ Others:AddToggle('SetFPS', {
     Callback = function(Value)
         isFPSEnabled = Value
         if isFPSEnabled then
+            -- Apply the saved slider value
             setfpscap(currentFPSCap)
         else
+            -- Disable the cap (0 = default/unlimited)
             setfpscap(0) 
         end
     end
@@ -1137,20 +1238,23 @@ Others:AddSlider('FPSCap', {
     Compact = false,
 
     Callback = function(Value)
-        currentFPSCap = Value
+        currentFPSCap = Value -- Save the slider value to our variable
         
+        -- Only apply the change if the toggle is currently ON
         if isFPSEnabled then
             setfpscap(Value)
         end
     end
 })
 
+-- 📊 Stats Tracking
 local sessionStart = tick()
 local horsesCaught = 0
 
 local TimeLabel = LeftGroupBox:AddLabel('Time Played: 0s')
 local HorsesLabel = LeftGroupBox:AddLabel('Horses Caught: 0')
 
+-- ⏱ Time Played Updater
 task.spawn(function()
     while true do
         task.wait(1)
@@ -1202,6 +1306,7 @@ end)
 -- UI Settings
 local MenuGroup = Tabs['UI Settings']:AddLeftGroupbox('Menu')
 
+-- I set NoUI so it does not show up in the keybinds menu
 MenuGroup:AddButton('Unload', function() Library:Unload() end)
 MenuGroup:AddButton('Join Discord', function() Library:Notify("Copied to clipboard.") setclipboard("https://discord.gg/GtN8n7Pq9Q") end)
 MenuGroup:AddLabel('Menu bind'):AddKeyPicker('MenuKeybind', { Default = 'RightShift', NoUI = true, Text = 'Menu keybind' })
