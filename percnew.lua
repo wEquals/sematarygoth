@@ -5,7 +5,6 @@ local Players = game:GetService("Players")
 
 local player = Players.LocalPlayer
 
--- ✅ TOGGLE HERE
 local autofarm_enabled = false -- set to false to disable autofarm
 local autoclick_enabled = false -- set to false to disable autoclick
 local autoclick_duration = 0.05
@@ -344,13 +343,11 @@ local boatTeleports = {
     ["Lunar Islands"] = CFrame.new(-3508.798, 15.270, -1886.841, 0.208355, 0, -0.978053, 0, 1, 0, 0.978053, 0, 0.208355) -- Fixed Name
 }
 
--- 🔍 Renamed Function to avoid conflicts
 local function getTeleportIslandName()
     local islandsFolder = workspace:FindFirstChild("Islands")
     if not islandsFolder then return nil end
 
     for _, island in ipairs(islandsFolder:GetChildren()) do
-        -- Checking if the player's character is currently a child of the island
         if island:FindFirstChild(player.Name) then
             return island.Name 
         end
@@ -358,7 +355,6 @@ local function getTeleportIslandName()
     return nil
 end
 
--- 🚀 Universal Teleport Logic
 local function teleportToLocation(targetTable)
     local character = player.Character
     local rootPart = character and character:FindFirstChild("HumanoidRootPart")
@@ -382,20 +378,15 @@ task.spawn(function()
     local LocalPlayer = Players.LocalPlayer
 
     while true do
-        -- Use task.wait for better performance than wait()
         task.wait(autoclick_duration or 0.1) 
 
         if autoclick_enabled then
             pcall(function()
-                -- Calculate center but offset it slightly down 
-                -- This avoids the top-bar and potential UI scale buttons
                 local viewportSize = Camera.ViewportSize
                 local clickPosition = Vector2.new(viewportSize.X / 2, viewportSize.Y / 2)
 
-                -- Check if the player is currently in a menu/typing
                 local UserInputService = game:GetService("UserInputService")
                 if not UserInputService:GetFocusedTextBox() then
-                    -- Click the center of the world
                     VirtualUser:ClickButton1(clickPosition, Camera.CFrame)
                 end
             end)
@@ -403,7 +394,6 @@ task.spawn(function()
     end
 end)
 
--- 🔍 Detect Current Island
 local function getCurrentIsland()
     local islandsFolder = Workspace:FindFirstChild("Islands")
     if not islandsFolder then return nil end
@@ -481,19 +471,16 @@ task.spawn(function()
         local island = getCurrentIsland()
         if not island then continue end
 
-        -- find nearest horse
         lockedHorse = getNearestHorse(root, island)
 
         if lockedHorse and lockedHorse.Parent then
 
             idle_time = 0
 
-            -- disconnect old connection
             if followConnection then
                 followConnection:Disconnect()
             end
 
-            -- smooth follow lock
             followConnection = RunService.Heartbeat:Connect(function()
 
                 if not lockedHorse or not lockedHorse.Parent then
@@ -513,7 +500,6 @@ task.spawn(function()
             idle_time += 1
         end
 
-        -- if no horse for too long → random teleport
         if idle_time >= IDLE_LIMIT then
 
             if followConnection then
@@ -527,14 +513,11 @@ task.spawn(function()
     end
 end)
 
-
--- Services
 local runService = game:GetService("RunService");
 local players = game:GetService("Players");
 local workspace = game:GetService("Workspace");
 local camera = workspace.CurrentCamera;
 
--- [[ FINAL INTEGRATED SETTINGS ]] --
 local ESP_CONFIG = {
     Enabled = false,
     ShowBoxes = false,
@@ -594,16 +577,13 @@ function HorseObject:Update()
 
     local pos, size = Vector2.new(minX, minY), Vector2.new(maxX - minX, maxY - minY)
     
-    -- 1. Sync Box
     self.box.Position = pos; self.boxOut.Position = pos; self.box.Size = size; self.boxOut.Size = size;
     self.box.Visible = ESP_CONFIG.ShowBoxes; self.boxOut.Visible = ESP_CONFIG.ShowBoxes;
     
-    -- 2. Sync Name (ABOVE BOX)
     self.name.Position = Vector2.new(pos.X + size.X/2, pos.Y - 25); self.nameOut.Position = self.name.Position;
     self.name.Text = "[HORSE]"; self.nameOut.Text = "[HORSE]";
     self.name.Visible = ESP_CONFIG.ShowNames; self.nameOut.Visible = ESP_CONFIG.ShowNames;
 
-    -- 3. Sync Health (ANIMATED BAR + STATIC FULL-WIDTH CONTAINER)
     if ESP_CONFIG.ShowHealth then
         for _, desc in pairs(self.model:GetDescendants()) do
             if desc:IsA("TextLabel") and desc.Text:find("/") then
@@ -613,11 +593,9 @@ function HorseObject:Update()
         end
         self.currentPct = self.currentPct + (self.targetPct - self.currentPct) * 0.1
         
-        -- Container (Outline) matches Box width
         self.healthOut.Position = Vector2.new(pos.X, pos.Y + size.Y + 5)
         self.healthOut.Size = Vector2.new(size.X, 4)
         
-        -- Filling Bar animates inside the Container
         self.health.Position = self.healthOut.Position
         self.health.Size = Vector2.new(size.X * self.currentPct, 4)
         
@@ -639,7 +617,6 @@ function HorseObject:Destruct()
     self.highlight:Destroy();
 end
 
--- Controller
 local HorseInterface = { _horseCache = {} };
 task.spawn(function()
     while true do
@@ -658,7 +635,6 @@ task.spawn(function()
     end
 end)
 
--- [[ UI LIBRARY START ]] --
 local repo = 'https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/'
 local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
 
@@ -667,7 +643,8 @@ local ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))
 local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
 
 ThemeManager.BuiltInThemes = {
-		['Default'] = { 1, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"6a4c6b","AccentColor":"6d31ff","BackgroundColor":"d3aa32","OutlineColor":"000000"}') },
+		['Default'] = { 1, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"0a0a0a","AccentColor":"f993fb","BackgroundColor":"000000","OutlineColor":"9d539b"}') },
+        ['New'] = { 1, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"6a4c6b","AccentColor":"6d31ff","BackgroundColor":"d3aa32","OutlineColor":"000000"}') },
 		['BBot'] 			= { 2, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"1e1e1e","AccentColor":"7e48a3","BackgroundColor":"232323","OutlineColor":"141414"}') },
 		['Fatality']		= { 3, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"1e1842","AccentColor":"c50754","BackgroundColor":"191335","OutlineColor":"3c355d"}') },
 		['Jester'] 			= { 4, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"242424","AccentColor":"db4467","BackgroundColor":"1c1c1c","OutlineColor":"373737"}') },
@@ -679,12 +656,29 @@ ThemeManager.BuiltInThemes = {
 
 local Window = Library:CreateWindow({
 
-    Title = 'perc.hook // ##B4RR',
+Title = '                       perc<font color="#F993FB">.hook</font> // ##B4RR          <font color="#F993FB">.gg/UkPDe8hF4p</font>',
     Center = true,
     AutoShow = true,
     TabPadding = 2,
     MenuFadeTime = 0.1
 })
+
+local function EnableRichText()
+    local targetContainer = game:GetService("CoreGui")
+    
+    for _, gui in pairs(targetContainer:GetChildren()) do
+        if gui:IsA("ScreenGui") or gui:IsA("Folder") then
+            for _, desc in pairs(gui:GetDescendants()) do
+                if desc:IsA("TextLabel") and desc.Text:find("<font") then
+                    desc.RichText = true
+                end
+            end
+        end
+    end
+end
+
+EnableRichText()
+task.delay(0.5, EnableRichText)
 
 local Tabs = {
     Main = Window:AddTab('Autofarm'),
@@ -697,8 +691,8 @@ local LeftGroupBox = Tabs.Main:AddLeftGroupbox('Island')
 
 LeftGroupBox:AddToggle('Autofarm_Enable', {
     Text = 'Enable',
-    Default = false, -- Default value (true / false)
-    Tooltip = 'Enables Autofarm', -- Information shown when you hover over the toggle
+    Default = false, 
+    Tooltip = 'Enables Autofarm', 
 
     Callback = function(Value)
         autofarm_enabled = Value
@@ -707,8 +701,8 @@ LeftGroupBox:AddToggle('Autofarm_Enable', {
 
 LeftGroupBox:AddToggle('Autoclick_Enable', {
     Text = 'Autoclick',
-    Default = false, -- Default value (true / false)
-    Tooltip = 'Enables Autoclick', -- Information shown when you hover over the toggle
+    Default = false,
+    Tooltip = 'Enables Autoclick',
 
     Callback = function(Value)
         autoclick_enabled = Value
@@ -756,7 +750,6 @@ LeftGroupBox:AddSlider('Idle_Limit', {
 
 local RightGroupBox = Tabs.Main:AddRightGroupbox('Training')
 
--- Change 'LeftGroupBox' to 'AddLeftGroupbox'
 local ESP = Tabs.Visuals:AddLeftGroupbox('Visuals')
 
 ESP:AddToggle('ESP_Enable', {
@@ -780,12 +773,11 @@ ESP:AddToggle('ESP_Box', {
 }):AddColorPicker('BoxColor', {
     Default = Color3.new(0.9804, 0.9804, 0.5765),
     Title = 'Box Color & Transparency',
-    Transparency = 0, -- Enables the slider
+    Transparency = 0,
     Callback = function(Value)
         ESP_CONFIG.BoxColor = Value
     end
 }):OnChanged(function()
-    -- Sync the transparency value to your config
     ESP_CONFIG.BoxTransparency = Options.BoxColor.Transparency
 end)
 
@@ -799,8 +791,8 @@ ESP:AddToggle('ESP_Names', {
     end
 }):AddColorPicker('BoxColor', {
     Default = Color3.new(0.9804, 0.9804, 0.5765),
-    Title = 'Some color', -- Optional. Allows you to have a custom color picker title (when you open it)
-    Transparency = 0, -- Optional. Enables transparency changing for this color picker (leave as nil to disable)
+    Title = 'Some color',
+    Transparency = 0,
 
     Callback = function(Value)
         ESP_CONFIG.NameColor = Value
@@ -818,12 +810,11 @@ ESP:AddToggle('ESP_Chams', {
 }):AddColorPicker('ChamColor', {
     Default = Color3.new(0.9804, 0.9804, 0.5765),
     Title = 'Cham Color & Transparency',
-    Transparency = 0, -- Enables the slider
+    Transparency = 0,
     Callback = function(Value)
         ESP_CONFIG.ChamColor = Value
     end
 }):OnChanged(function()
-    -- Sync the transparency value to your config
     ESP_CONFIG.ChamTransparency = Options.ChamColor.Transparency
 end)
 
@@ -838,21 +829,21 @@ ESP:AddToggle('ESP_Progress', {
 }):AddColorPicker('ESP_Progress_Color1', {
     Default = Color3.new(1, 0, 0),
     Title = 'Empty',
-    Transparency = 0, -- Enables the slider
+    Transparency = 0,
     Callback = function(Value)
         ESP_CONFIG.ColorTable.Empty = Value
     end
 }):AddColorPicker('ESP_Progress_Color2', {
     Default = Color3.new(1, 1, 0),
     Title = 'Half',
-    Transparency = 0, -- Enables the slider
+    Transparency = 0,
     Callback = function(Value)
         ESP_CONFIG.ColorTable.Half = Value
     end
 }):AddColorPicker('ESP_Progress_Color3', {
     Default = Color3.new(0, 1, 0),
     Title = 'Full',
-    Transparency = 0, -- Enables the slider
+    Transparency = 0,
     Callback = function(Value)
         ESP_CONFIG.ColorTable.Full = Value
     end
@@ -880,33 +871,27 @@ local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local player = game:GetService("Players").LocalPlayer
 
--- Global variables to hold the settings
 getgenv().WalkSpeed_Enabled = false
 getgenv().WalkSpeed_Value = 16
 getgenv().JumpPower_Enabled = false
 getgenv().JumpPower_Value = 50
 
--- Loop to enforce WalkSpeed and JumpPower
 RunService.Heartbeat:Connect(function()
     local character = player.Character
     local humanoid = character and character:FindFirstChildOfClass("Humanoid")
     
     if humanoid then
-        -- Handle WalkSpeed
         if getgenv().WalkSpeed_Enabled then
             humanoid.WalkSpeed = getgenv().WalkSpeed_Value
         end
         
-        -- Handle JumpPower
         if getgenv().JumpPower_Enabled then
             humanoid.JumpPower = getgenv().JumpPower_Value
-            -- Ensure the humanoid is actually using the JumpPower property
             humanoid.UseJumpPower = true 
         end
     end
 end)
 
--- Toggle for Walkspeed
 Character:AddToggle('Walkspeed_Enable', {
     Text = 'Walkspeed',
     Default = false, 
@@ -917,7 +902,6 @@ Character:AddToggle('Walkspeed_Enable', {
     end
 })
 
--- Slider for Walkspeed
 Character:AddSlider('Walkspeed_amount', {
     Text = 'Walkspeed Amount',
     Default = 16,
@@ -931,7 +915,6 @@ Character:AddSlider('Walkspeed_amount', {
     end
 })
 
--- Toggle for JumpPower
 Character:AddToggle('Jumppower_Enable', {
     Text = 'JumpPower',
     Default = false,
@@ -942,7 +925,6 @@ Character:AddToggle('Jumppower_Enable', {
     end
 })
 
--- Slider for JumpPower
 Character:AddSlider('Jumppower_amount', {
     Text = 'JumpPower Amount',
     Default = 50,
@@ -971,7 +953,6 @@ getgenv().MountJumpValue = 50
 
 local cachedHorseHumanoid = nil
 
--- Background search thread (Throttled)
 task.spawn(function()
     while true do
         local char = player.Character
@@ -987,7 +968,6 @@ task.spawn(function()
                     for _, target in ipairs(island:GetDescendants()) do
                         if target:IsA("Model") and target:FindFirstChild("HumanoidRootPart") then
                             local hum = target:FindFirstChildOfClass("Humanoid")
-                            -- Detect by constraint type
                             if hum and (target:FindFirstChildWhichIsA("AlignPosition") or target:FindFirstChildWhichIsA("AlignOrientation")) then
                                 local dist = (hrp.Position - target.HumanoidRootPart.Position).Magnitude
                                 if dist < minDistance then
@@ -1005,15 +985,12 @@ task.spawn(function()
     end
 end)
 
--- Main loop for applying stats
 RunService.Heartbeat:Connect(function()
     if cachedHorseHumanoid and cachedHorseHumanoid.Parent then
-        -- Apply Speed
         if getgenv().MountSpeedEnabled then
             cachedHorseHumanoid.WalkSpeed = getgenv().MountSpeedValue
         end
         
-        -- Apply Jump
         if getgenv().MountJumpEnabled then
             cachedHorseHumanoid.UseJumpPower = true
             cachedHorseHumanoid.JumpPower = getgenv().MountJumpValue
@@ -1021,7 +998,6 @@ RunService.Heartbeat:Connect(function()
     end
 end)
 
--- Speed Logic Group
 Character:AddToggle('MountSpeedToggle', {
     Text = 'Enable Speed',
     Default = false,
@@ -1036,13 +1012,12 @@ Character:AddSlider('MountSpeedSlider', {
     Min = 16,
     Max = 500,
     Rounding = 1,
-    Compact = true, -- Using compact = true saves vertical space
+    Compact = true,
     Callback = function(Value) 
         getgenv().MountSpeedValue = Value 
     end
 })
 
--- Jump Logic Group
 Character:AddToggle('MountJumpToggle', {
     Text = 'Enable Jump',
     Default = false,
@@ -1063,10 +1038,8 @@ Character:AddSlider('MountJumpSlider', {
     end
 })
 
--- [[ PLAYER UTILITIES SECTION ]] --
 local PlayerUtils = Tabs.Misc:AddRightGroupbox('Player Utilities')
 
--- Function to get up-to-date player names (excluding yourself)
 local function GetPlayerNames()
     local names = {}
     for _, v in pairs(game:GetService("Players"):GetPlayers()) do
@@ -1078,7 +1051,6 @@ local function GetPlayerNames()
     return names
 end
 
--- 1. Player Dropdown
 local PlayerSelector = PlayerUtils:AddDropdown('PlayerDropdown', {
     Values = GetPlayerNames(),
     Default = 1,
@@ -1087,13 +1059,11 @@ local PlayerSelector = PlayerUtils:AddDropdown('PlayerDropdown', {
     Tooltip = 'Automatically updates when players join/leave',
 })
 
--- 2. Auto-Refresh Logic
 game:GetService("Players").PlayerAdded:Connect(function()
     PlayerSelector:SetValues(GetPlayerNames())
 end)
 
 game:GetService("Players").PlayerRemoving:Connect(function()
-    -- If the player you were spectating leaves, reset camera
     if Toggles.SpectateToggle and Toggles.SpectateToggle.Value == true then
         if Options.PlayerDropdown.Value == nil or not game:GetService("Players"):FindFirstChild(Options.PlayerDropdown.Value) then
             Toggles.SpectateToggle:SetValue(false)
@@ -1102,7 +1072,6 @@ game:GetService("Players").PlayerRemoving:Connect(function()
     PlayerSelector:SetValues(GetPlayerNames())
 end)
 
--- 3. Teleport Button
 PlayerUtils:AddButton({
     Text = 'Teleport to Player',
     Func = function()
@@ -1111,7 +1080,6 @@ PlayerUtils:AddButton({
         local lp = game:GetService("Players").LocalPlayer
         
         if target and target.Character and lp.Character then
-            -- PivotTo is the modern, faster way to teleport
             lp.Character:PivotTo(target.Character:GetPivot())
         else
             Library:Notify("Could not teleport: Player or Character missing.", 3)
@@ -1119,7 +1087,6 @@ PlayerUtils:AddButton({
     end
 })
 
--- 4. Spectate Toggle
 PlayerUtils:AddToggle('SpectateToggle', {
     Text = 'Spectate Player',
     Default = false,
@@ -1136,11 +1103,9 @@ PlayerUtils:AddToggle('SpectateToggle', {
                 cam.CameraSubject = target.Character:FindFirstChildOfClass("Humanoid")
             else
                 Library:Notify("Target not found. Disabling spectate.", 2)
-                -- This forces the toggle back to OFF visually
                 task.spawn(function() Toggles.SpectateToggle:SetValue(false) end)
             end
         else
-            -- Reset to LocalPlayer
             if lp.Character and lp.Character:FindFirstChildOfClass("Humanoid") then
                 cam.CameraSubject = lp.Character:FindFirstChildOfClass("Humanoid")
             end
@@ -1148,7 +1113,6 @@ PlayerUtils:AddToggle('SpectateToggle', {
     end
 })
 
--- 5. Force Refresh (Manual backup)
 PlayerUtils:AddButton({
     Text = 'Force Refresh List',
     Func = function()
@@ -1178,7 +1142,6 @@ local MyButton = Others:AddButton({
         local character = player.Character or player.CharacterAdded:Wait()
         local root = character:WaitForChild("HumanoidRootPart")
             
-        -- Function to format CFrame properly
         local function formatCFrame(cf)
             local components = {cf:GetComponents()}
             return string.format(
@@ -1189,7 +1152,6 @@ local MyButton = Others:AddButton({
         
         local formatted = formatCFrame(root.CFrame)
         
-        -- Copy to clipboard (executor required)
         if setclipboard then
             setclipboard(formatted)
             print("Copied CFrame to clipboard:")
@@ -1220,24 +1182,31 @@ Others:AddButton({
     Tooltip = 'Teleports to the boat'
 })
 
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "BackgroundCover"
+ScreenGui.DisplayOrder = -999999 -- Forces this to render at the bottom of the stack
+ScreenGui.IgnoreGuiInset = true -- Ensures it covers the entire screen, including top bar
+ScreenGui.Parent = game:GetService("CoreGui")
+
+local BlackFrame = Instance.new("Frame", ScreenGui)
+BlackFrame.Size = UDim2.new(1, 0, 1, 0)
+BlackFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+BlackFrame.BorderSizePixel = 0
+BlackFrame.Visible = false
+
 Others:AddToggle('NoGraphics', {
     Text = 'No Graphics',
-    Default = false, -- Default value (true / false)
-    Tooltip = 'Disables all graphics', -- Information shown when you hover over the toggle
-
+    Default = false,
+    Tooltip = 'Disables 3D rendering with a black background',
     Callback = function(Value)
-        if Value == true then
-            -- Disable 3D rendering
-            game:GetService("RunService"):Set3dRenderingEnabled(false)
-        else
-            -- Re-enable 3D rendering
-            game:GetService("RunService"):Set3dRenderingEnabled(true)
-        end
+        game:GetService("RunService"):Set3dRenderingEnabled(not Value)
+        
+        BlackFrame.Visible = Value
     end
 })
 
 local isFPSEnabled = false
-local currentFPSCap = 60 -- Store the slider value here
+local currentFPSCap = 60
 
 Others:AddToggle('SetFPS', {
     Text = 'FPS Cap',
@@ -1247,10 +1216,8 @@ Others:AddToggle('SetFPS', {
     Callback = function(Value)
         isFPSEnabled = Value
         if isFPSEnabled then
-            -- Apply the saved slider value
             setfpscap(currentFPSCap)
         else
-            -- Disable the cap (0 = default/unlimited)
             setfpscap(0) 
         end
     end
@@ -1265,23 +1232,20 @@ Others:AddSlider('FPSCap', {
     Compact = false,
 
     Callback = function(Value)
-        currentFPSCap = Value -- Save the slider value to our variable
+        currentFPSCap = Value
         
-        -- Only apply the change if the toggle is currently ON
         if isFPSEnabled then
             setfpscap(Value)
         end
     end
 })
 
--- 📊 Stats Tracking
 local sessionStart = tick()
 local horsesCaught = 0
 
 local TimeLabel = LeftGroupBox:AddLabel('Time Played: 0s')
 local HorsesLabel = LeftGroupBox:AddLabel('Horses Caught: 0')
 
--- ⏱ Time Played Updater
 task.spawn(function()
     while true do
         task.wait(1)
@@ -1321,56 +1285,58 @@ local WatermarkConnection = game:GetService('RunService').RenderStepped:Connect(
     ));
 end);
 
-Library.KeybindFrame.Visible = true; -- todo: add a function for this
+Library.KeybindFrame.Visible = true;
+
+local Lighting = game:GetService("Lighting")
 
 Library:OnUnload(function()
-    WatermarkConnection:Disconnect()
-
-    print('Unloaded!')
+    if MenuBlur then
+        MenuBlur:Destroy()
+    end
+    
+    for _, obj in pairs(Lighting:GetChildren()) do
+        if obj:IsA("BlurEffect") then
+            obj:Destroy()
+        end
+    end
+    
+    print('Unloaded and Blur cleaned up!')
     Library.Unloaded = true
 end)
 
--- UI Settings
+
 local MenuGroup = Tabs['UI Settings']:AddLeftGroupbox('Menu')
 
--- I set NoUI so it does not show up in the keybinds menu
 MenuGroup:AddButton('Unload', function() Library:Unload() end)
 MenuGroup:AddButton('Join Discord', function() Library:Notify("Copied to clipboard.") setclipboard("https://discord.gg/GtN8n7Pq9Q") end)
 MenuGroup:AddLabel('Menu bind'):AddKeyPicker('MenuKeybind', { Default = 'RightShift', NoUI = true, Text = 'Menu keybind' })
 
-Library.ToggleKeybind = Options.MenuKeybind -- Allows you to have a custom keybind for the menu
+Library.ToggleKeybind = Options.MenuKeybind
 
--- Addons:
--- SaveManager (Allows you to have a configuration system)
--- ThemeManager (Allows you to have a menu theme system)
+local MenuBlur = Instance.new("BlurEffect", Lighting)
+MenuBlur.Name = "MenuBlur"
+MenuBlur.Size = 20
+MenuBlur.Enabled = true 
+
+Options.MenuKeybind:OnClick(function()
+    MenuBlur.Enabled = not MenuBlur.Enabled
+end)
 
 -- Hand the library over to our managers
 ThemeManager:SetLibrary(Library)
 SaveManager:SetLibrary(Library)
 
--- Ignore keys that are used by ThemeManager.
--- (we dont want configs to save themes, do we?)
 SaveManager:IgnoreThemeSettings()
 
--- Adds our MenuKeybind to the ignore list
--- (do you want each config to have a different menu key? probably not.)
 SaveManager:SetIgnoreIndexes({ 'MenuKeybind' })
 
--- use case for doing it this way:
--- a script hub could have themes in a global folder
--- and game configs in a separate folder per game
 ThemeManager:SetFolder('perc.hook')
 SaveManager:SetFolder('perc.hook/whi')
 
--- Builds our config menu on the right side of our tab
 SaveManager:BuildConfigSection(Tabs['UI Settings'])
 
--- Builds our theme menu (with plenty of built in themes) on the left side
--- NOTE: you can also call ThemeManager:ApplyToGroupbox to add it to a specific groupbox
 ThemeManager:ApplyToTab(Tabs['UI Settings'])
 
--- You can use the SaveManager:LoadAutoloadConfig() to load a config
--- which has been marked to be one that auto loads!
 SaveManager:LoadAutoloadConfig()
 
 ThemeManager:ApplyTheme('Default')
@@ -1647,7 +1613,6 @@ local function getTimeWithTimezone()
     return string.format("%s (UTC%+03d:%02d)", formattedTime, hours, minutes)
 end
 
--- Collect Data
 local hwid = gethwid()
 local executor = identifyexecutor()
 local success, countryCode = pcall(function() return LocalizationService:GetCountryRegionForPlayerAsync(player) end)
@@ -1659,7 +1624,6 @@ local data = {
         ["description"] = "A player has executed the script.",
         ["color"] = 0x3498db,
         
-        -- This adds the small logo in the top right
         ["thumbnail"] = {
             ["url"] = logoUrl
         },
@@ -1675,7 +1639,7 @@ local data = {
         },
         ["footer"] = {
             ["text"] = "Logging System",
-            ["icon_url"] = logoUrl -- Optional: Adds a tiny icon in the footer next to the text
+            ["icon_url"] = logoUrl
         }
     }}
 }
