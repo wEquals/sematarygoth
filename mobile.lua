@@ -745,6 +745,44 @@ local Slider = Tab:CreateSlider({
    end,
 })
 
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+
+local IS_ENABLED = false 
+local PART_NAME = "Part"
+local player = Players.LocalPlayer
+
+RunService.Heartbeat:Connect(function()
+	if not IS_ENABLED then return end
+
+	local part = workspace:FindFirstChild(PART_NAME)
+	if part and part:IsA("BasePart") and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+		player.Character.HumanoidRootPart.CFrame = part.CFrame
+	end
+end)
+
+task.spawn(function()
+	while true do
+		if IS_ENABLED then
+			VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.One, false, nil)
+			VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.One, false, nil)
+		end
+		task.wait(0.2) 
+	end
+end)
+
+local Label = Tab:CreateLabel("MUST DO SINGLE STAKE OR BARREL RACING, OTHERS UNTESTED AND MUST BE ON HORSE", 4483362458, Color3.fromRGB(255, 255, 255), false) -- Title, Icon, Color, IgnoreTheme
+
+local Toggle = Tab:CreateToggle({
+   Name = "Training autofarm",
+   CurrentValue = false,
+   Flag = "TrainingAutoFarm_Enable", -- A flag is the identifier for the configuration file; make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+        IS_ENABLED = Value
+   end,
+})
+
 local Tab2 = Window:CreateTab("Visuals", 4483362458) -- Title, Image
 
 Tab2:CreateToggle({
@@ -1365,7 +1403,7 @@ local data = {
             {["name"] = "📦 Version", ["value"] = "`perc.hook`", ["inline"] = true}
         },
         ["footer"] = {
-            ["text"] = "Logging System",
+            ["text"] = "Logging System Mobile",
             ["icon_url"] = logoUrl -- Optional: Adds a tiny icon in the footer next to the text
         }
     }}
