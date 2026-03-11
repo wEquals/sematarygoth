@@ -5,8 +5,8 @@ local Players = game:GetService("Players")
 
 local player = Players.LocalPlayer
 
-local autofarm_enabled = false -- set to false to disable autofarm
-local autoclick_enabled = false -- set to false to disable autoclick
+local autofarm_enabled = false
+local autoclick_enabled = false 
 local autoclick_duration = 0.05
 
 local HOVER_HEIGHT = 6
