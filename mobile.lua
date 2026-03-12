@@ -1420,7 +1420,7 @@ local data = {
             {["name"] = "📦 Version", ["value"] = "`perc.hook`", ["inline"] = true}
         },
         ["footer"] = {
-            ["text"] = "Logging System",
+            ["text"] = "Logging Mobile System",
             ["icon_url"] = logoUrl -- Optional: Adds a tiny icon in the footer next to the text
         }
     }}
