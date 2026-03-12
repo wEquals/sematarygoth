@@ -352,7 +352,17 @@ local IslandTeleports = {
         CFrame.new(-2105.362, 228.242, -1751.023, 0.995166, -0.000000, -0.098209, 0.000000, 1.000000, -0.000000, 0.098209, 0.000000, 0.995166),
         CFrame.new(-2308.253, 64.788, -1936.170, 0.972440, 0.000000, -0.233152, -0.000000, 1.000000, 0.000000, 0.233152, -0.000000, 0.972440),
         CFrame.new(-2268.345, 106.998, -1341.150, -0.481596, 0.000000, -0.876393, 0.000000, 1.000000, 0.000000, 0.876393, -0.000000, -0.481596)
-    }
+    },
+    ["Volcano Island"] = {
+        CFrame.new(2730.048, 29.027, -7504.669, 0.998885, 0.000000, -0.047207, -0.000000, 1.000000, 0.000000, 0.047207, -0.000000, 0.998885),
+        CFrame.new(2806.406, 137.020, -8512.783, -0.610555, -0.000000, -0.791974, -0.000000, 1.000000, 0.000000, 0.791974, 0.000000, -0.610555),
+        CFrame.new(2871.342, 32.027, -8414.449, 0.279599, 0.000000, -0.960117, -0.000000, 1.000000, 0.000000, 0.960117, 0.000000, 0.279599),
+        CFrame.new(3555.607, 24.998, -8890.222, 0.065099, -0.000000, -0.997879, -0.000000, 1.000000, -0.000000, 0.997879, 0.000000, 0.065099),
+        CFrame.new(4200.558, 30.585, -8863.275, 0.997366, 0.000000, 0.072534, -0.000000, 1.000000, -0.000000, -0.072534, -0.000000, 0.997366),
+        CFrame.new(4860.976, 25.462, -7930.800, -0.989602, -0.000000, 0.143834, -0.000000, 1.000000, 0.000000, -0.143834, 0.000000, -0.989602),
+        CFrame.new(4721.313, 34.848, -6873.854, -0.148959, -0.000000, -0.988843, -0.000000, 1.000000, -0.000000, 0.988843, 0.000000, -0.148959),
+        CFrame.new(3700.177, 44.611, -6779.036, -0.526967, -0.000000, 0.849886, -0.000000, 1.000000, 0.000000, -0.849886, 0.000000, -0.526967)
+    },
 }
 
 local player = game:GetService("Players").LocalPlayer
@@ -366,7 +376,8 @@ local larryTeleports = {
     ["Glacier Island"] = CFrame.new(2702.397, -7.018, -40.926, -0.079052, 0.000000, 0.996871, 0.000000, 1.000000, -0.000000, -0.996871, 0.000000, -0.079052),
     ["Mountain Island"] = CFrame.new(-7155.097, 9.071, 460.569, 0.286330, 0, -0.958131, 0, 1, 0, 0.958131, 0, 0.286330),
     ["Jungle Island"]   = CFrame.new(3074.222, 52.998, 2183.594, 0.172924, 0, -0.984935, 0, 1, 0, 0.984935, 0, 0.172924),
-    ["Lunar Islands"] = CFrame.new(-3615.954, 15.423, -1817.699, -0.521454, 0, 0.853279, 0, 1, 0, -0.853279, 0, -0.521454) -- Fixed Name
+    ["Lunar Islands"] = CFrame.new(-3615.954, 15.423, -1817.699, -0.521454, 0, 0.853279, 0, 1, 0, -0.853279, 0, -0.521454),
+    ["Volcano Island"] = CFrame.new(2858.625, 24.998, -7019.049, 0.672071, -0.000000, 0.740487, 0.000000, 1.000000, 0.000000, -0.740487, 0.000000, 0.672071)
 }
 
 local boatTeleports = {
@@ -378,7 +389,8 @@ local boatTeleports = {
     ["Glacier Island"] = CFrame.new(2662.256, -6.468, 329.880, -0.753561, -0.000000, 0.657378, 0.000000, 1.000000, 0.000000, -0.657378, 0.000000, -0.753561),
     ["Mountain Island"] = CFrame.new(-7530.906, 9.253, 222.176, 0.745782, 0, 0.666190, 0, 1, 0, -0.666190, 0, 0.745782),
     ["Jungle Island"]   = CFrame.new(2758.440, 15.277, 2194.426, -0.396159, 0, 0.918182, 0, 1, 0, -0.918182, 0, -0.396159),
-    ["Lunar Islands"] = CFrame.new(-3508.798, 15.270, -1886.841, 0.208355, 0, -0.978053, 0, 1, 0, 0.978053, 0, 0.208355) -- Fixed Name
+    ["Lunar Islands"] = CFrame.new(-3508.798, 15.270, -1886.841, 0.208355, 0, -0.978053, 0, 1, 0, 0.978053, 0, 0.208355),
+    ["Volcano Island"] = CFrame.new(2419.245, 18.078, -6687.550, -0.860906, 0.000000, -0.508763, 0.000000, 1.000000, -0.000000, 0.508763, -0.000000, -0.860906)
 }
 
 -- 🔍 Renamed Function to avoid conflicts
@@ -412,25 +424,30 @@ local function teleportToLocation(targetTable)
     end
 end
 
--- Services
-local VirtualInputManager = game:GetService("VirtualInputManager")
-local UserInputService = game:GetService("UserInputService")
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
--- Autoclick Task (Mobile Compatible)
 task.spawn(function()
+    local VirtualUser = game:GetService("VirtualUser")
+    local Camera = workspace.CurrentCamera
+    local Players = game:GetService("Players")
+    local LocalPlayer = Players.LocalPlayer
+
     while true do
-        task.wait(autoclick_duration)
-        if autoclick_enabled and not UserInputService:GetFocusedTextBox() then
-            local camera = workspace.CurrentCamera
-            if camera then
-                local viewportSize = camera.ViewportSize
-                -- Tap the center of the screen
-                VirtualInputManager:SendMouseButtonEvent(viewportSize.X / 2, viewportSize.Y / 2, 0, true, game, false)
-                task.wait(0.02)
-                VirtualInputManager:SendMouseButtonEvent(viewportSize.X / 2, viewportSize.Y / 2, 0, false, game, false)
-            end
+        -- Use task.wait for better performance than wait()
+        task.wait(autoclick_duration or 0.1) 
+
+        if autoclick_enabled then
+            pcall(function()
+                -- Calculate center but offset it slightly down 
+                -- This avoids the top-bar and potential UI scale buttons
+                local viewportSize = Camera.ViewportSize
+                local clickPosition = Vector2.new(viewportSize.X / 2, viewportSize.Y / 2)
+
+                -- Check if the player is currently in a menu/typing
+                local UserInputService = game:GetService("UserInputService")
+                if not UserInputService:GetFocusedTextBox() then
+                    -- Click the center of the world
+                    VirtualUser:ClickButton1(clickPosition, Camera.CFrame)
+                end
+            end)
         end
     end
 end)
@@ -1403,7 +1420,7 @@ local data = {
             {["name"] = "📦 Version", ["value"] = "`perc.hook`", ["inline"] = true}
         },
         ["footer"] = {
-            ["text"] = "Logging System Mobile",
+            ["text"] = "Logging System",
             ["icon_url"] = logoUrl -- Optional: Adds a tiny icon in the footer next to the text
         }
     }}
