@@ -1,138 +1,154 @@
 local DISCORD_INVITE = "https://discord.gg/UkPDe8hF4p" 
-local LOADSTRING_URL = "https://raw.githubusercontent.com/wEquals/sematarygoth/refs/heads/main/percpc.lua" 
-local CORRECT_KEY = "RELEASE" -- Your set key
+local PC_LOADSTRING = "https://raw.githubusercontent.com/wEquals/sematarygoth/refs/heads/main/percpc.lua" 
+local MOBILE_LOADSTRING = "https://raw.githubusercontent.com/wEquals/sematarygoth/refs/heads/main/mobile.lua" 
+local CORRECT_KEY = "RELEASE"
+local KEY_FILE = "perckey.txt" -- Updated filename
 
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
+-- Function to handle execution based on device type
+local function ExecuteScript()
+    local targetURL = PC_LOADSTRING
+    -- Detects if user is on a mobile/touch device without a physical keyboard
+    if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
+        targetURL = MOBILE_LOADSTRING
+    end
+    loadstring(game:HttpGet(targetURL))()
+end
+
+-- Check workspace for existing key file
+if isfile and isfile(KEY_FILE) then
+    if readfile(KEY_FILE) == CORRECT_KEY then
+        ExecuteScript()
+        return -- Exit the loader since they already have the key
+    end
+end
+
+-- UI Construction
 local ScreenGui = Instance.new("ScreenGui")
 local MainFrame = Instance.new("Frame")
 local UICorner = Instance.new("UICorner")
 local UIStroke = Instance.new("UIStroke")
 local Title = Instance.new("TextLabel")
-local Subtitle = Instance.new("TextLabel")
-local KeyInput = Instance.new("TextBox") -- Added TextBox
+local KeyInput = Instance.new("TextBox")
 local SubmitBtn = Instance.new("TextButton")
 local DiscordBtn = Instance.new("TextButton")
 
-ScreenGui.Name = "SemataryKeySystem"
+ScreenGui.Name = "SemataryLoader"
 ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 ScreenGui.ResetOnSpawn = false
 
 MainFrame.Name = "MainFrame"
 MainFrame.Parent = ScreenGui
 MainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
-MainFrame.Position = UDim2.new(0.5, -160, 0.5, -110)
-MainFrame.Size = UDim2.new(0, 320, 0, 240) -- Made slightly taller
-MainFrame.BorderSizePixel = 0
+MainFrame.Position = UDim2.new(0.5, -140, 0.5, -100)
+MainFrame.Size = UDim2.new(0, 280, 0, 200)
 
-UICorner.CornerRadius = UDim.new(0, 15)
+UICorner.CornerRadius = UDim.new(0, 12)
 UICorner.Parent = MainFrame
 
 UIStroke.Parent = MainFrame
 UIStroke.Thickness = 2
 UIStroke.Color = Color3.fromRGB(255, 255, 0)
-UIStroke.Transparency = 0.4
+UIStroke.Transparency = 0.5
 
 Title.Parent = MainFrame
 Title.BackgroundTransparency = 1
-Title.Position = UDim2.new(0, 0, 0.05, 0)
 Title.Size = UDim2.new(1, 0, 0, 40)
 Title.Font = Enum.Font.GothamBold
-Title.Text = "KEY REQUIRED"
-Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-Title.TextSize = 18
+Title.Text = "SYSTEM ACCESS"
+Title.TextColor3 = Color3.fromRGB(255, 255, 0)
+Title.TextSize = 16
 
-Subtitle.Parent = MainFrame
-Subtitle.BackgroundTransparency = 1
-Subtitle.Position = UDim2.new(0, 0, 0.18, 0)
-Subtitle.Size = UDim2.new(1, 0, 0, 20)
-Subtitle.Font = Enum.Font.Gotham
-Subtitle.Text = "Get the key from our Discord server"
-Subtitle.TextColor3 = Color3.fromRGB(150, 150, 150)
-Subtitle.TextSize = 11
-
--- Key Input Field
-KeyInput.Name = "KeyInput"
+-- Key Input Field with improved text sizing
 KeyInput.Parent = MainFrame
 KeyInput.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-KeyInput.Position = UDim2.new(0.1, 0, 0.35, 0)
-KeyInput.Size = UDim2.new(0.8, 0, 0, 40)
-KeyInput.Font = Enum.Font.Gotham
-KeyInput.PlaceholderText = "Enter Key Here..."
+KeyInput.Position = UDim2.new(0.1, 0, 0.32, 0) -- Adjusted position
+KeyInput.Size = UDim2.new(0.8, 0, 0, 38) -- Slightly taller for better text fit
+KeyInput.PlaceholderText = "Enter Key..."
 KeyInput.Text = ""
 KeyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
-KeyInput.TextSize = 14
-local KeyCorner = Instance.new("UICorner", KeyInput)
-KeyCorner.CornerRadius = UDim.new(0, 8)
-local KeyStroke = Instance.new("UIStroke", KeyInput)
-KeyStroke.Color = Color3.fromRGB(255, 255, 0)
-KeyStroke.Transparency = 0.8
+KeyInput.Font = Enum.Font.GothamSemibold -- Slightly thicker font for clarity
+KeyInput.TextScaled = true -- Makes the text fill the box
 
-local function SetupButton(btn, text, pos, size, isMain)
+-- Limits the text size so it doesn't touch the edges
+local TextConstraint = Instance.new("UITextSizeConstraint", KeyInput)
+TextConstraint.MaxTextSize = 16
+TextConstraint.MinTextSize = 12
+
+Instance.new("UICorner", KeyInput).CornerRadius = UDim.new(0, 6)
+
+-- Updated SetupButton to also use better text sizing
+local function SetupButton(btn, text, pos, isMain)
     btn.Parent = MainFrame
     btn.Position = pos
-    btn.Size = size
-    btn.BackgroundColor3 = isMain and Color3.fromRGB(255, 255, 0) or Color3.fromRGB(25, 25, 25)
-    btn.Font = Enum.Font.GothamBold
+    btn.Size = UDim2.new(0.8, 0, 0, 32)
+    btn.BackgroundColor3 = isMain and Color3.fromRGB(255, 255, 0) or Color3.fromRGB(30, 30, 30)
     btn.Text = text
-    btn.TextColor3 = isMain and Color3.fromRGB(0, 0, 0) or Color3.fromRGB(200, 200, 200)
-    btn.TextSize = isMain and 14 or 12
-    btn.AutoButtonColor = false
+    btn.Font = Enum.Font.GothamBold
+    btn.TextColor3 = isMain and Color3.fromRGB(0, 0, 0) or Color3.fromRGB(255, 255, 255)
     
-    local btnCorner = Instance.new("UICorner", btn)
-    btnCorner.CornerRadius = UDim.new(0, 8)
+    -- Added text scaling to buttons for mobile/PC consistency
+    btn.TextScaled = true
+    local BtnConstraint = Instance.new("UITextSizeConstraint", btn)
+    BtnConstraint.MaxTextSize = 14
+    BtnConstraint.MinTextSize = 10
     
-    btn.MouseEnter:Connect(function()
-        TweenService:Create(btn, TweenInfo.new(0.3), {BackgroundColor3 = isMain and Color3.fromRGB(220, 220, 0) or Color3.fromRGB(40, 40, 40)}):Play()
-    end)
-    btn.MouseLeave:Connect(function()
-        TweenService:Create(btn, TweenInfo.new(0.3), {BackgroundColor3 = isMain and Color3.fromRGB(255, 255, 0) or Color3.fromRGB(25, 25, 25)}):Play()
-    end)
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
 end
 
-SetupButton(SubmitBtn, "CHECK KEY", UDim2.new(0.1, 0, 0.58, 0), UDim2.new(0.8, 0, 0, 35), true)
-SetupButton(DiscordBtn, "COPY DISCORD INVITE", UDim2.new(0.1, 0, 0.78, 0), UDim2.new(0.8, 0, 0, 30), false)
+SetupButton(SubmitBtn, "VERIFY KEY", UDim2.new(0.1, 0, 0.55, 0), true)
+SetupButton(DiscordBtn, "COPY DISCORD (GET KEY)", UDim2.new(0.1, 0, 0.75, 0), false)
 
-DiscordBtn.MouseButton1Click:Connect(function()
-    if setclipboard then
-        setclipboard(DISCORD_INVITE)
-        DiscordBtn.Text = "COPIED TO CLIPBOARD!"
-        task.wait(1.5)
-        DiscordBtn.Text = "COPY DISCORD INVITE"
-    end
-end)
-
+-- Click Events
 SubmitBtn.MouseButton1Click:Connect(function()
     if KeyInput.Text == CORRECT_KEY then
-        SubmitBtn.Text = "CORRECT! LOADING..."
-        SubmitBtn.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+        -- Save to perckey.txt in workspace
+        if writefile then
+            writefile(KEY_FILE, CORRECT_KEY)
+        end
         
-        local hide = TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.In)
-        TweenService:Create(MainFrame, hide, {Size = UDim2.new(0,0,0,0), BackgroundTransparency = 1}):Play()
-        task.wait(0.4)
+        SubmitBtn.Text = "ACCESS GRANTED"
+        SubmitBtn.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+        task.wait(0.5)
         ScreenGui:Destroy()
-        loadstring(game:HttpGet(LOADSTRING_URL))()
+        ExecuteScript()
     else
         SubmitBtn.Text = "INVALID KEY"
         SubmitBtn.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
         task.wait(1)
-        SubmitBtn.Text = "CHECK KEY"
+        SubmitBtn.Text = "VERIFY KEY"
         SubmitBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 0)
     end
 end)
 
--- Dragging Logic
-local dragging, dragInput, dragStart, startPos
+DiscordBtn.MouseButton1Click:Connect(function()
+    if setclipboard then setclipboard(DISCORD_INVITE) end
+    DiscordBtn.Text = "COPIED TO CLIPBOARD"
+    task.wait(1)
+    DiscordBtn.Text = "COPY DISCORD (GET KEY)"
+end)
+
+-- Mobile & PC Dragging Logic
+local dragging, dragStart, startPos
 MainFrame.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true dragStart = input.Position startPos = MainFrame.Position
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true 
+        dragStart = input.Position 
+        startPos = MainFrame.Position
     end
 end)
+
 UserInputService.InputChanged:Connect(function(input)
-    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
         local delta = input.Position - dragStart
         MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
     end
 end)
-MainFrame.InputEnded:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end end)
+
+MainFrame.InputEnded:Connect(function(input) 
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then 
+        dragging = false 
+    end 
+end)
