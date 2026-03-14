@@ -655,7 +655,7 @@ local ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))
 local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
 
 ThemeManager.BuiltInThemes = {
-		['Default'] = { 1, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"0a0a0a","AccentColor":"f993fb","BackgroundColor":"000000","OutlineColor":"9d539b"}') },
+		['Default'] = { 1, httpService:JSONDecode('{"FontColor":"89919c","MainColor":"20232a","AccentColor":"898aae","BackgroundColor":"161a20","OutlineColor":"25262d"}') },
         ['New'] = { 1, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"6a4c6b","AccentColor":"6d31ff","BackgroundColor":"d3aa32","OutlineColor":"000000"}') },
 		['BBot'] 			= { 2, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"1e1e1e","AccentColor":"7e48a3","BackgroundColor":"232323","OutlineColor":"141414"}') },
 		['Fatality']		= { 3, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"1e1842","AccentColor":"c50754","BackgroundColor":"191335","OutlineColor":"3c355d"}') },
@@ -668,7 +668,7 @@ ThemeManager.BuiltInThemes = {
 
 local Window = Library:CreateWindow({
 
-Title = '                       perc<font color="#F993FB">.hook</font> // ##B4RR          <font color="#F993FB">.gg/UkPDe8hF4p</font>',
+Title = '                       perc<font color="#898aae">.hook</font> // ##B4RR          <font color="#898aae">.gg/UkPDe8hF4p</font>',
     Center = true,
     AutoShow = true,
     TabPadding = 2,
@@ -691,7 +691,6 @@ end
 
 EnableRichText()
 task.delay(0.5, EnableRichText)
-
 
 local Tabs = {
     Main = Window:AddTab('Autofarm'),
@@ -857,7 +856,7 @@ task.spawn(function()
 
             -- Check if the model's attribute is in our TARGET_ITEMS table
             local itemName = object:GetAttribute(ATTR_NAME)
-            if object:IsA("Model") and TARGET_ITEMS[itemName] then
+                if object:IsA("Model") and TARGET_ITEMS[itemName] == true then
                 
                 local targetPart = object.PrimaryPart or object:FindFirstChildWhichIsA("BasePart")
                 local currentHealth = object:GetAttribute(HEALTH_ATTR)
@@ -925,16 +924,14 @@ Ores:AddToggle('OreHighlight_Enable', {
 })
 
 Ores:AddDropdown('OreType', {
-    Values = { 'Rock', 'Tin Rock', 'Copper Rock', 'Iron Rock', 'Bronze Rock', 'Silver Rock', 'Obsidian Rock', 'Moonstone Rock', 'Gold Rock' },
-    Default = 1, 
+    Values = { 'Rock', 'Tin Rock', 'Copper Rock', 'Iron Rock', 'Bronze Rock', 'Silver Rock', 'Gold Rock', 'Obsidian Rock', 'Moonstone Rock' },
+    Default = 0, 
     Multi = true, 
 
     Text = 'Ore type',
     Tooltip = 'Chooses the types of ores to autofarm',
 
     Callback = function(SelectedTable)
-        -- SelectedTable looks like this: { ["Rock"] = true, ["Iron Rock"] = false, ... }
-        -- We can just update TARGET_ITEMS to match it!
         for oreName, isSelected in pairs(SelectedTable) do
             TARGET_ITEMS[oreName] = isSelected
         end
@@ -1650,10 +1647,7 @@ Others:AddSlider('FPSCap', {
 })
 
 local sessionStart = tick()
-local horsesCaught = 0
-
 local TimeLabel = LeftGroupBox:AddLabel('Time Played: 0s')
-local HorsesLabel = LeftGroupBox:AddLabel('Horses Caught: 0')
 
 task.spawn(function()
     while true do
@@ -1671,7 +1665,6 @@ task.spawn(function()
         ))
     end
 end)
-
 
 Library:SetWatermarkVisibility(true)
 
@@ -1717,7 +1710,7 @@ end)
 local MenuGroup = Tabs['UI Settings']:AddLeftGroupbox('Menu')
 
 MenuGroup:AddButton('Unload', function() Library:Unload() end)
-MenuGroup:AddButton('Join Discord', function() Library:Notify("Copied to clipboard.") setclipboard("https://discord.gg/GtN8n7Pq9Q") end)
+MenuGroup:AddButton('Join Discord', function() Library:Notify("Copied to clipboard.") setclipboard("https://discord.gg/UkPDe8hF4p") end)
 MenuGroup:AddLabel('Menu bind'):AddKeyPicker('MenuKeybind', { Default = 'RightShift', NoUI = true, Text = 'Menu keybind' })
 MenuGroup:AddLabel('I LOVE MY WIFE ZEE', true)
 
