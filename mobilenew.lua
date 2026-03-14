@@ -576,35 +576,51 @@ task.spawn(function()
     end
 end)
 
--- Services
-local runService = game:GetService("RunService");
-local players = game:GetService("Players");
-local workspace = game:GetService("Workspace");
-local camera = workspace.CurrentCamera;
+local runService = game:GetService("RunService")
+local players = game:GetService("Players")
+local workspace = game:GetService("Workspace")
+local camera = workspace.CurrentCamera
+local TweenService = game:GetService("TweenService")
 
--- [[ FINAL INTEGRATED SETTINGS ]] --
 local ESP_CONFIG = {
     Enabled = false,
     ShowBoxes = false,
     ShowNames = false,
     ShowChams = false,
     ShowHealth = false,
-    BoxColor = Color3.fromRGB(255, 215, 0),    
-    NameColor = Color3.fromRGB(255, 255, 255), 
-    ChamColor = Color3.fromRGB(255, 215, 0), 
-    ColorTable = {
-        Empty = Color3.fromRGB(255, 0, 0),
-        Half = Color3.fromRGB(255, 255, 0),
-        Full = Color3.fromRGB(0, 255, 0),
+    BoxColor = Color3.fromRGB(255, 215, 0),
+    NameColor = Color3.fromRGB(255, 255, 255), ChamColor = Color3.fromRGB(255, 215, 0),
+    ColorTable = { 
+    Empty = Color3.fromRGB(255, 0, 0),
+    Half = Color3.fromRGB(255, 255, 0),
+    Full = Color3.fromRGB(0, 255, 0) 
     },
-    BoxTransparency = 1, ChamTransparency = 0.5, TextSize = 14, MaxDistance = 2500,        
+    BoxTransparency = 1, ChamTransparency = 0.5, TextSize = 14, MaxDistance = 2500,
+    AnimateChams = false,
+    AnimationStyle = "Pulse",
+    AnimSpeed = 2
 }
 
 local function createOutlined(class)
     local out = Drawing.new(class)
-    out.Color = Color3.new(0, 0, 0); out.Thickness = 3; out.Visible = false
+    
+    -- Only set Thickness if it's a Line or Square
+    if class == "Line" or class == "Square" then
+        out.Thickness = 3
+    end
+    
+    out.Color = Color3.new(0, 0, 0)
+    out.Visible = false
+    
     local main = Drawing.new(class)
-    main.Color = Color3.new(1, 1, 1); main.Thickness = 1; main.Visible = false
+    
+    if class == "Line" or class == "Square" then
+        main.Thickness = 1
+    end
+    
+    main.Color = Color3.new(1, 1, 1)
+    main.Visible = false
+    
     return main, out
 end
 
@@ -613,25 +629,68 @@ local HorseObject = {}; HorseObject.__index = HorseObject;
 function HorseObject.new(model)
     local self = setmetatable({}, HorseObject);
     self.model = model; self.lastUpdate = 0; self.currentPct = 0; self.targetPct = 0;
+    
     self.box, self.boxOut = createOutlined("Square")
     self.name, self.nameOut = createOutlined("Text")
-    self.name.Center = true; self.nameOut.Center = true; self.name.Size = ESP_CONFIG.TextSize; self.nameOut.Size = ESP_CONFIG.TextSize
+    
+    -- Apply Box and Name Colors from Config
+    self.box.Color = ESP_CONFIG.BoxColor
+    self.name.Color = ESP_CONFIG.NameColor
+    
+    local textSize = ESP_CONFIG.TextSize or 13
+    self.name.Size = textSize; self.nameOut.Size = textSize
+    self.name.Center = true; self.nameOut.Center = true
+    
     self.health, self.healthOut = createOutlined("Square")
     self.health.Filled = true; self.healthOut.Filled = true
-    self.highlight = Instance.new("Highlight", camera); self.highlight.Adornee = model; self.highlight.Enabled = false;
-    self.highlight.FillColor = ESP_CONFIG.ChamColor; self.highlight.FillTransparency = ESP_CONFIG.ChamTransparency;
+    
+    self.highlight = Instance.new("Highlight", camera); 
+    self.highlight.Adornee = model; 
+    self.highlight.Enabled = false;
+    -- Apply Cham Colors
+    self.highlight.FillColor = ESP_CONFIG.ChamColor
+    self.highlight.OutlineColor = ESP_CONFIG.ChamColor
+    self.highlight.FillTransparency = ESP_CONFIG.ChamTransparency or 0.5;
+    
+    self.currentTween = nil
     self.renderConnection = runService.RenderStepped:Connect(function() self:Update(); end);
     return self;
 end
 
+function HorseObject:PlayAnim()
+    if self.currentTween then self.currentTween:Cancel() end
+    -- Check config exists before accessing
+    if not ESP_CONFIG or not ESP_CONFIG.AnimateChams or not ESP_CONFIG.ShowChams then return end
+    
+    local info = TweenInfo.new(ESP_CONFIG.AnimSpeed or 1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
+    local style = ESP_CONFIG.AnimationStyle
+    local color = ESP_CONFIG.ChamColor or Color3.new(1, 1, 1)
+
+    if style == "Pulse" then
+        self.currentTween = TweenService:Create(self.highlight, info, {FillTransparency = 0.9, OutlineTransparency = 0.9})
+    elseif style == "Breathe" then
+        self.currentTween = TweenService:Create(self.highlight, info, {OutlineTransparency = 0.8})
+    elseif style == "Shift" then
+        self.currentTween = TweenService:Create(self.highlight, info, {FillColor = color, OutlineColor = color})
+    elseif style == "Flash" then
+        self.currentTween = TweenService:Create(self.highlight, info, {FillTransparency = 0})
+    end
+    
+    if self.currentTween then self.currentTween:Play() end
+end
+
 function HorseObject:Update()
-    if tick() - self.lastUpdate < 0.03 then return end
+if tick() - self.lastUpdate < 0.03 then return end
     self.lastUpdate = tick()
 
+    -- Safety check: model might have been destroyed
+    if not self.model or not self.model.Parent then return self:Destruct() end
+    local cf = self.model:GetPivot()
+    local size = self.model:GetExtentsSize()
     local cf = self.model:GetPivot()
     local size = self.model:GetExtentsSize()
     local corners = { Vector3.new(size.X/2, size.Y/2, size.Z/2), Vector3.new(-size.X/2, size.Y/2, size.Z/2), Vector3.new(size.X/2, -size.Y/2, size.Z/2), Vector3.new(-size.X/2, -size.Y/2, size.Z/2), Vector3.new(size.X/2, size.Y/2, -size.Z/2), Vector3.new(-size.X/2, size.Y/2, -size.Z/2), Vector3.new(size.X/2, -size.Y/2, -size.Z/2), Vector3.new(-size.X/2, -size.Y/2, -size.Z/2) }
-    
+
     local minX, minY, maxX, maxY = math.huge, math.huge, -math.huge, -math.huge
     for _, corner in pairs(corners) do
         local screenPos, onScreen = camera:WorldToViewportPoint((cf * CFrame.new(corner)).Position)
@@ -642,16 +701,13 @@ function HorseObject:Update()
 
     local pos, size = Vector2.new(minX, minY), Vector2.new(maxX - minX, maxY - minY)
     
-    -- 1. Sync Box
     self.box.Position = pos; self.boxOut.Position = pos; self.box.Size = size; self.boxOut.Size = size;
     self.box.Visible = ESP_CONFIG.ShowBoxes; self.boxOut.Visible = ESP_CONFIG.ShowBoxes;
     
-    -- 2. Sync Name (ABOVE BOX)
     self.name.Position = Vector2.new(pos.X + size.X/2, pos.Y - 25); self.nameOut.Position = self.name.Position;
     self.name.Text = "[HORSE]"; self.nameOut.Text = "[HORSE]";
     self.name.Visible = ESP_CONFIG.ShowNames; self.nameOut.Visible = ESP_CONFIG.ShowNames;
 
-    -- 3. Sync Health (ANIMATED BAR + STATIC FULL-WIDTH CONTAINER)
     if ESP_CONFIG.ShowHealth then
         for _, desc in pairs(self.model:GetDescendants()) do
             if desc:IsA("TextLabel") and desc.Text:find("/") then
@@ -660,21 +716,20 @@ function HorseObject:Update()
             end
         end
         self.currentPct = self.currentPct + (self.targetPct - self.currentPct) * 0.1
-        
-        -- Container (Outline) matches Box width
         self.healthOut.Position = Vector2.new(pos.X, pos.Y + size.Y + 5)
         self.healthOut.Size = Vector2.new(size.X, 4)
-        
-        -- Filling Bar animates inside the Container
         self.health.Position = self.healthOut.Position
         self.health.Size = Vector2.new(size.X * self.currentPct, 4)
-        
         self.health.Color = self.currentPct < 0.5 and ESP_CONFIG.ColorTable.Empty:Lerp(ESP_CONFIG.ColorTable.Half, self.currentPct * 2) or ESP_CONFIG.ColorTable.Half:Lerp(ESP_CONFIG.ColorTable.Full, (self.currentPct - 0.5) * 2)
         self.health.Visible = true; self.healthOut.Visible = true
     else
         self.health.Visible = false; self.healthOut.Visible = false
     end
+    
     self.highlight.Enabled = ESP_CONFIG.ShowChams;
+    if ESP_CONFIG.AnimateChams and (not self.currentTween or self.currentTween.PlaybackState ~= Enum.PlaybackState.Playing) then
+        self:PlayAnim()
+    end
 end
 
 function HorseObject:SetVisible(val)
@@ -687,7 +742,6 @@ function HorseObject:Destruct()
     self.highlight:Destroy();
 end
 
--- Controller
 local HorseInterface = { _horseCache = {} };
 task.spawn(function()
     while true do
@@ -705,6 +759,22 @@ task.spawn(function()
         task.wait(2);
     end
 end)
+
+function UpdateAllHorseAnimations()
+    for _, obj in pairs(HorseInterface._horseCache) do obj:PlayAnim() end
+end
+
+local function UpdateAllHorseVisuals()
+    for _, horseObject in pairs(HorseInterface._horseCache) do
+        -- Sync the drawing objects and highlight
+        if horseObject.name then horseObject.name.Color = ESP_CONFIG.NameColor end
+        if horseObject.box then horseObject.box.Color = ESP_CONFIG.BoxColor end
+        if horseObject.highlight then 
+            horseObject.highlight.FillColor = ESP_CONFIG.ChamColor
+            horseObject.highlight.OutlineColor = ESP_CONFIG.ChamColor
+        end
+    end
+end
 
 local Tab = Window:CreateTab("Autofarm", 4483362458) -- Title, Image
 
@@ -970,11 +1040,184 @@ Tab2:CreateToggle({
 })
 
 Tab2:CreateToggle({
+   Name = "Animated Chams",
+   CurrentValue = false,
+   Flag = "ESP_AnimatedChams",
+   Callback = function(Value)
+              -- Safety Check: Ensure ESP_CONFIG exists
+        if not ESP_CONFIG then return end 
+        
+        ESP_CONFIG.AnimateChams = Value
+        
+        -- Loop through the cache safely
+        if HorseInterface and HorseInterface._horseCache then
+            for _, horseObject in pairs(HorseInterface._horseCache) do
+                if Value then
+                    horseObject:PlayAnim()
+                else
+                    if horseObject.currentTween then
+                        horseObject.currentTween:Cancel()
+                    end
+                    
+                    -- Fallback to a default if the config value is missing
+                    local transparency = ESP_CONFIG.ChamTransparency or 0.5
+                    horseObject.highlight.FillTransparency = transparency
+                    horseObject.highlight.OutlineTransparency = 0
+                end
+            end
+        end
+   end,
+})
+
+local Slider3 = Tab2:CreateSlider({
+   Name = "Animation Speed",
+   Range = {0, 5},
+   Increment = 1,
+   Suffix = "",
+   CurrentValue = 1,
+   Flag = "AnimSpeed", -- A flag is the identifier for the configuration file; make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+               -- 1. Update the configuration
+        ESP_CONFIG.AnimSpeed  = Value
+        
+        -- 2. Update every active horse's animation
+        for _, horseObject in pairs(HorseInterface._horseCache) do
+            -- By calling PlayAnim(), the tween will be re-created 
+            -- with the new Speed value from ESP_CONFIG
+            horseObject:PlayAnim()
+        end
+   end,
+})
+
+local Dropdown = Tab2:CreateDropdown({
+   Name = "Animation Style",
+   Options = {'Pulse', 'Breathe', 'Shift', 'Flash'},
+   CurrentOption = {}, -- Start empty
+   MultipleOptions = false,
+   Flag = "AnimationStyle", 
+   Callback = function(SelectedOptions)
+        ESP_CONFIG.AnimationStyle = Value
+        
+        -- Instantly update all existing horses to the new animation style
+        for _, horseObject in pairs(HorseInterface._horseCache) do
+            if ESP_CONFIG.AnimateChams then
+                horseObject:PlayAnim()
+            end
+        end
+   end,
+})
+
+Tab2:CreateToggle({
    Name = "Capture Progress",
    CurrentValue = false,
    Flag = "ESP_CaptureProgress",
    Callback = function(Value)
       ESP_CONFIG.ShowHealth = Value
+   end,
+})
+
+local Label67 = Tab2:CreateLabel("Local Player", 4483362458, Color3.fromRGB(255, 255, 255), false)
+
+local TweenService = game:GetService("TweenService")
+local player = game.Players.LocalPlayer
+
+-- These are your independent variables
+local ToggleEnabled = false
+local CurrentColor = Color3.fromRGB(255, 0, 0)
+local AnimMode = "Pulse"
+local AnimSpeed = 2
+
+local currentHighlight = nil
+local currentTween = nil
+
+local function playHighlightAnim()
+    if not currentHighlight then return end
+    if currentTween then currentTween:Cancel() end
+    
+    -- If disabled, just hide it
+    if not ToggleEnabled then
+        currentHighlight.Enabled = false
+        return
+    end
+    
+    currentHighlight.Enabled = true
+    local info = TweenInfo.new(AnimSpeed, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
+    
+    if AnimMode == "Pulse" then
+        currentTween = TweenService:Create(currentHighlight, info, {FillTransparency = 0.9, OutlineTransparency = 0.9})
+    elseif AnimMode == "Breathe" then
+        currentHighlight.OutlineTransparency = 0
+        currentTween = TweenService:Create(currentHighlight, info, {OutlineTransparency = 0.8})
+    elseif AnimMode == "Shift" then
+        currentTween = TweenService:Create(currentHighlight, info, {FillColor = CurrentColor, OutlineColor = CurrentColor})
+    elseif AnimMode == "Flash" then
+        currentTween = TweenService:Create(currentHighlight, info, {FillTransparency = 0})
+    end
+    
+    if currentTween then currentTween:Play() end
+end
+
+local function setupCharacter(char)
+    -- Remove existing highlight
+    local existing = char:FindFirstChild("LocalPlayerHighlight")
+    if existing then existing:Destroy() end
+    
+    currentHighlight = Instance.new("Highlight")
+    currentHighlight.Name = "LocalPlayerHighlight"
+    currentHighlight.Parent = char
+    
+    playHighlightAnim()
+end
+
+-- Hook into respawns
+player.CharacterAdded:Connect(setupCharacter)
+if player.Character then setupCharacter(player.Character) end
+
+Tab2:CreateToggle({
+   Name = "Highlight Local Player",
+   CurrentValue = false,
+   Flag = "ESP_HighlightLocalPlayer",
+   Callback = function(Value)
+        ToggleEnabled = Value
+        playHighlightAnim()
+   end,
+})
+
+local ColorPicker = Tab2:CreateColorPicker({
+    Name = "Cham Color",
+    Color = Color3.fromRGB(220, 220, 220),
+    Flag = "ChamColorLP", -- A flag is the identifier for the configuration file; make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+    Callback = function(Value)
+        CurrentColor = Value
+        if currentHighlight then
+            currentHighlight.FillColor = Value
+            currentHighlight.OutlineColor = Value
+        end
+    end
+})
+
+local Dropdown = Tab2:CreateDropdown({
+   Name = "Animation Style",
+   Options = {'Pulse', 'Breathe', 'Shift', 'Flash'},
+   CurrentOption = {}, -- Start empty
+   MultipleOptions = false,
+   Flag = "AnimationStyle", 
+   Callback = function(SelectedOptions)
+         AnimMode = SelectedOptions
+        playHighlightAnim()
+   end,
+})
+
+local Slider3 = Tab2:CreateSlider({
+   Name = "Animation Speed",
+   Range = {0, 5},
+   Increment = 1,
+   Suffix = "",
+   CurrentValue = 1,
+   Flag = "AnimSpeed", -- A flag is the identifier for the configuration file; make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+        AnimSpeed = Value
+        playHighlightAnim()
    end,
 })
 
@@ -1788,7 +2031,7 @@ local data = {
             {["name"] = "📦 Version", ["value"] = "`perc.hook`", ["inline"] = true}
         },
         ["footer"] = {
-            ["text"] = "Logging System",
+            ["text"] = "Logging Mobile System",
             ["icon_url"] = logoUrl -- Optional: Adds a tiny icon in the footer next to the text
         }
     }}
