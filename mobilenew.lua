@@ -800,6 +800,146 @@ local Toggle = Tab:CreateToggle({
    end,
 })
 
+local Label = Tab:CreateLabel("Ore Autofarm", 4483362458, Color3.fromRGB(255, 255, 255), false) -- Title, Icon, Color, IgnoreTheme
+
+local AUTOFARM = false
+local OREHIGHLIGHT = false
+local CLICK_COOLDOWN = 0.15 
+
+local TARGET_ITEMS = {
+    ["Rock"] = false,
+    ["Tin Rock"] = false,
+    ["Copper Rock"] = false,
+    ["Iron Rock"] = false,
+    ["Bronze Rock"] = false,
+    ["Silver Rock"] = false,
+    ["Obsidian Rock"] = false,
+    ["Moonstone Rock"] = false,
+    ["Gold Rock"] = false,
+}
+
+local ATTR_NAME = "itemName"
+local HEALTH_ATTR = "health"
+
+local player = game.Players.LocalPlayer
+local camera = workspace.CurrentCamera
+local VIM = game:GetService("VirtualInputManager")
+
+-- Highlight setup
+local highlight = Instance.new("Highlight")
+highlight.FillColor = Color3.fromRGB(0, 255, 255)
+highlight.Parent = game:GetService("CoreGui")
+highlight.Enabled = false
+
+local function getCurrentIsland()
+    local islandsFolder = workspace:FindFirstChild("Islands")
+    if not islandsFolder then return nil end
+    for _, island in ipairs(islandsFolder:GetChildren()) do
+        if island:FindFirstChild(player.Name) then return island end
+    end
+    return nil
+end
+
+task.spawn(function()
+    while true do
+        task.wait(0.5)
+        if not AUTOFARM then continue end
+
+        local myIsland = getCurrentIsland()
+        if not myIsland then continue end
+
+        for _, object in ipairs(myIsland:GetDescendants()) do
+            if not AUTOFARM then break end
+
+            -- Check if the model's attribute is in our TARGET_ITEMS table
+            local itemName = object:GetAttribute(ATTR_NAME)
+            if object:IsA("Model") and TARGET_ITEMS[itemName] then
+                
+                local targetPart = object.PrimaryPart or object:FindFirstChildWhichIsA("BasePart")
+                local currentHealth = object:GetAttribute(HEALTH_ATTR)
+                
+                if targetPart and currentHealth and currentHealth > 0 then
+                    
+                    if OREHIGHLIGHT then
+                        highlight.Adornee = object
+                        highlight.Enabled = true
+                    end
+
+                    local character = player.Character
+                    local root = character and character:FindFirstChild("HumanoidRootPart")
+                    if root then
+                        -- Teleport to face the target
+                        root.CFrame = CFrame.new(targetPart.Position + Vector3.new(0, 2, 4), targetPart.Position)
+                    end
+                    
+                    task.wait(0.3)
+
+                    -- MINING LOOP
+                    while AUTOFARM and object.Parent and (object:GetAttribute(HEALTH_ATTR) or 0) > 0 do
+                        -- Force Camera to lock on
+                        camera.CFrame = CFrame.new(camera.CFrame.Position, targetPart.Position)
+                        
+                        local vpSize = camera.ViewportSize
+                        local x, y = vpSize.X / 2, vpSize.Y / 2
+
+                        -- Engine-level Click with a tiny "wiggle" to force registration
+                        pcall(function()
+                            VIM:SendMouseMoveEvent(x + 1, y + 1, game)
+                            VIM:SendMouseButtonEvent(x, y, 0, true, game, 1)
+                            task.wait(0.02)
+                            VIM:SendMouseButtonEvent(x, y, 0, false, game, 1)
+                        end)
+                        
+                        task.wait(CLICK_COOLDOWN)
+                    end
+                    
+                    highlight.Enabled = false
+                end
+            end
+        end
+    end
+end)
+
+Tab:CreateToggle({
+   Name = "Enable",
+   CurrentValue = false,
+   Flag = "OreAutoFarm_Enable", -- A flag is the identifier for the configuration file; make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+      AUTOFARM = Value
+   end,
+})
+
+Tab:CreateToggle({
+   Name = "Highlight ores",
+   CurrentValue = false,
+   Flag = "HighlightOres", -- A flag is the identifier for the configuration file; make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+      OREHIGHLIGHT = Value
+   end,
+})
+
+local Dropdown = Tab:CreateDropdown({
+   Name = "Ore Selection",
+   Options = {'Rock', 'Tin Rock', 'Copper Rock', 'Iron Rock', 'Bronze Rock', 'Silver Rock', 'Obsidian Rock', 'Moonstone Rock', 'Gold Rock'},
+   CurrentOption = {}, -- Start empty
+   MultipleOptions = true,
+   Flag = "OreSelection", 
+   Callback = function(SelectedOptions)
+       -- 1. Reset everything to false first (to handle unselecting)
+       for key, _ in pairs(TARGET_ITEMS) do
+           TARGET_ITEMS[key] = false
+       end
+       
+       -- 2. Set only the selected items to true
+       for _, name in pairs(SelectedOptions) do
+           if TARGET_ITEMS[name] ~= nil then
+               TARGET_ITEMS[name] = true
+           end
+       end
+       
+   end,
+})
+
 local Tab2 = Window:CreateTab("Visuals", 4483362458) -- Title, Image
 
 Tab2:CreateToggle({
@@ -837,6 +977,226 @@ Tab2:CreateToggle({
       ESP_CONFIG.ShowHealth = Value
    end,
 })
+
+local Label3 = Tab2:CreateLabel("World", 4483362458, Color3.fromRGB(255, 255, 255), false)
+
+local Lighting = game:GetService("Lighting")
+
+local ORIGINAL_SETTINGS = {
+    Ambient = Lighting.Ambient,
+    Brightness = Lighting.Brightness,
+    ColorShift_Bottom = Lighting.ColorShift_Bottom,
+    ColorShift_Top = Lighting.ColorShift_Top,
+    OutdoorAmbient = Lighting.OutdoorAmbient,
+    FogColor = Lighting.FogColor,
+    FogEnd = Lighting.FogEnd,
+    FogStart = Lighting.FogStart
+}
+
+local MasterSwitch = false
+
+local EnabledSettings = {
+    Ambient = false,
+    Brightness = false,
+    ColorShift_Bottom = false,
+    ColorShift_Top = false,
+    OutdoorAmbient = false
+}
+
+local CustomSettings = {
+    Ambient = Color3.fromRGB(50, 50, 50),
+    Brightness = 2,
+    ColorShift_Bottom = Color3.fromRGB(0, 0, 0),
+    ColorShift_Top = Color3.fromRGB(255, 255, 255),
+    OutdoorAmbient = Color3.fromRGB(100, 100, 100),
+    FogEnabled = true,
+    FogColor = Color3.fromRGB(200, 200, 200),
+    FogEnd = 1000,
+    FogStart = 0
+}
+
+task.spawn(function()
+    while true do
+        if MasterSwitch then
+            if EnabledSettings.Ambient then Lighting.Ambient = CustomSettings.Ambient end
+            if EnabledSettings.Brightness then Lighting.Brightness = CustomSettings.Brightness end
+            if EnabledSettings.ColorShift_Bottom then Lighting.ColorShift_Bottom = CustomSettings.ColorShift_Bottom end
+            if EnabledSettings.ColorShift_Top then Lighting.ColorShift_Top = CustomSettings.ColorShift_Top end
+            if EnabledSettings.OutdoorAmbient then Lighting.OutdoorAmbient = CustomSettings.OutdoorAmbient end
+            
+            if CustomSettings.FogEnabled then
+                Lighting.FogColor = CustomSettings.FogColor
+                Lighting.FogEnd = CustomSettings.FogEnd
+                Lighting.FogStart = CustomSettings.FogStart
+            else
+                Lighting.FogEnd = 100000 
+            end
+        end
+        task.wait(0.9)
+    end
+end)
+
+function SetMasterSwitch(state)
+    MasterSwitch = state
+    
+    if not MasterSwitch then
+        Lighting.Ambient = ORIGINAL_SETTINGS.Ambient
+        Lighting.Brightness = ORIGINAL_SETTINGS.Brightness
+        Lighting.ColorShift_Bottom = ORIGINAL_SETTINGS.ColorShift_Bottom
+        Lighting.ColorShift_Top = ORIGINAL_SETTINGS.ColorShift_Top
+        Lighting.OutdoorAmbient = ORIGINAL_SETTINGS.OutdoorAmbient
+        Lighting.FogColor = ORIGINAL_SETTINGS.FogColor
+        Lighting.FogEnd = ORIGINAL_SETTINGS.FogEnd
+        Lighting.FogStart = ORIGINAL_SETTINGS.FogStart
+    end
+end
+
+Tab2:CreateToggle({
+   Name = "Enable",
+   CurrentValue = false,
+   Flag = "WorldVisualsEnable",
+   Callback = function(Value)
+      MasterSwitch = Value
+   end,
+})
+
+Tab2:CreateToggle({
+   Name = "Ambient",
+   CurrentValue = false,
+   Flag = "AmbientEnabled",
+   Callback = function(Value)
+      EnabledSettings.Ambient = Value
+   end,
+})
+
+Tab2:CreateToggle({
+   Name = "Color Shift Bottom",
+   CurrentValue = false,
+   Flag = "ColorShift_BottomEnabled",
+   Callback = function(Value)
+      EnabledSettings.ColorShift_Bottom = Value
+   end,
+})
+
+Tab2:CreateToggle({
+   Name = "Color Shift Top",
+   CurrentValue = false,
+   Flag = "ColorShift_TopEnabled",
+   Callback = function(Value)
+      EnabledSettings.ColorShift_Top = Value
+   end,
+})
+
+Tab2:CreateToggle({
+   Name = "Outdoor Ambient",
+   CurrentValue = false,
+   Flag = "OutdoorAmbientEnabled",
+   Callback = function(Value)
+      EnabledSettings.OutdoorAmbient = Value
+   end,
+})
+
+Tab2:CreateToggle({
+   Name = "Fog",
+   CurrentValue = false,
+   Flag = "FogEnabled",
+   Callback = function(Value)
+      EnabledSettings.FogEnabled = Value
+   end,
+})
+
+Tab2:CreateToggle({
+   Name = "Brightness",
+   CurrentValue = false,
+   Flag = "BrightnessEnabled",
+   Callback = function(Value)
+      EnabledSettings.Brightness = Value
+   end,
+})
+
+local Label4 = Tab2:CreateLabel("World Colors", 4483362458, Color3.fromRGB(255, 255, 255), false)
+
+local ColorPicker = Tab2:CreateColorPicker({
+    Name = "Ambient Color",
+    Color = Color3.fromRGB(220, 220, 220),
+    Flag = "AmbientColor", -- A flag is the identifier for the configuration file; make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+    Callback = function(Value)
+        CustomSettings.Ambient = Value
+    end
+})
+
+local ColorPicker = Tab2:CreateColorPicker({
+    Name = "Color Shift Bottom",
+    Color = Color3.fromRGB(0, 0, 0),
+    Flag = "ColorShift_BottomColor", -- A flag is the identifier for the configuration file; make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+    Callback = function(Value)
+        CustomSettings.ColorShift_Bottom = Value
+    end
+})
+
+local ColorPicker = Tab2:CreateColorPicker({
+    Name = "Color Shift Top",
+    Color = Color3.fromRGB(0, 0, 0),
+    Flag = "ColorShift_TopColor", -- A flag is the identifier for the configuration file; make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+    Callback = function(Value)
+        CustomSettings.ColorShift_Top = Value
+    end
+})
+
+local ColorPicker = Tab2:CreateColorPicker({
+    Name = "Outdoor Ambient",
+    Color = Color3.fromRGB(225, 225, 225),
+    Flag = "OutdoorAmbientColor", -- A flag is the identifier for the configuration file; make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+    Callback = function(Value)
+        CustomSettings.OutdoorAmbient = Value
+    end
+})
+
+local ColorPicker = Tab2:CreateColorPicker({
+    Name = "Fog Color",
+    Color = Color3.fromRGB(225, 225, 225),
+    Flag = "FogColor", -- A flag is the identifier for the configuration file; make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+    Callback = function(Value)
+        CustomSettings.FogColor = Value
+    end
+})
+
+local Slider = Tab2:CreateSlider({
+   Name = "Fog Start",
+   Range = {0, 4000},
+   Increment = 1,
+   Suffix = "",
+   CurrentValue = 0,
+   Flag = "FogStart", -- A flag is the identifier for the configuration file; make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+        CustomSettings.FogStart = Value
+   end,
+})
+
+local Slider = Tab2:CreateSlider({
+   Name = "Fog End",
+   Range = {0, 100000},
+   Increment = 1,
+   Suffix = "",
+   CurrentValue = 100000,
+   Flag = "FogEnd", -- A flag is the identifier for the configuration file; make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+        CustomSettings.FogEnd = Value
+   end,
+})
+
+local Slider = Tab2:CreateSlider({
+   Name = "Brightness",
+   Range = {0, 4},
+   Increment = 1,
+   Suffix = "",
+   CurrentValue = 1.5,
+   Flag = "Brightness", -- A flag is the identifier for the configuration file; make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+        CustomSettings.Brightness = Value
+   end,
+})
+
 
 local Tab3 = Window:CreateTab("Misc", 4483362458) -- Title, Image
 
@@ -1070,18 +1430,26 @@ local Button = Tab3:CreateButton({
    end,
 })
 
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "BackgroundCover"
+ScreenGui.DisplayOrder = -999999 
+ScreenGui.IgnoreGuiInset = true 
+ScreenGui.Parent = game:GetService("CoreGui")
+
+local BlackFrame = Instance.new("Frame", ScreenGui)
+BlackFrame.Size = UDim2.new(1, 0, 1, 0)
+BlackFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+BlackFrame.BorderSizePixel = 0
+BlackFrame.Visible = false
+
 local Toggle4 = Tab3:CreateToggle({
    Name = "No graphics",
    CurrentValue = false,
    Flag = "NoGraphics", -- A flag is the identifier for the configuration file; make sure every element has a different flag if you're using configuration saving to ensure no overlaps
    Callback = function(Value)
-        if Value == true then
-            -- Disable 3D rendering
-            game:GetService("RunService"):Set3dRenderingEnabled(false)
-        else
-            -- Re-enable 3D rendering
-            game:GetService("RunService"):Set3dRenderingEnabled(true)
-        end
+        game:GetService("RunService"):Set3dRenderingEnabled(not Value)
+        
+        BlackFrame.Visible = Value
    end,
 })
 
@@ -1420,7 +1788,7 @@ local data = {
             {["name"] = "📦 Version", ["value"] = "`perc.hook`", ["inline"] = true}
         },
         ["footer"] = {
-            ["text"] = "Logging Mobile System",
+            ["text"] = "Logging System",
             ["icon_url"] = logoUrl -- Optional: Adds a tiny icon in the footer next to the text
         }
     }}
