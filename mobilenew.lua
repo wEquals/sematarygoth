@@ -853,7 +853,7 @@ task.spawn(function()
 
             -- Check if the model's attribute is in our TARGET_ITEMS table
             local itemName = object:GetAttribute(ATTR_NAME)
-            if object:IsA("Model") and TARGET_ITEMS[itemName] then
+                if object:IsA("Model") and TARGET_ITEMS[itemName] == true then
                 
                 local targetPart = object.PrimaryPart or object:FindFirstChildWhichIsA("BasePart")
                 local currentHealth = object:GetAttribute(HEALTH_ATTR)
