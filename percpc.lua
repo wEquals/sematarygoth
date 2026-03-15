@@ -1060,7 +1060,7 @@ Ores:AddToggle('OreRandomTeleport', {
 })
 
 Ores:AddDropdown('OreType', {
-    Values = { 'Rock', 'Tin Rock', 'Copper Rock', 'Iron Rock', 'Bronze Rock', 'Silver Rock', 'Gold Rock', 'Obsidian Rock', 'Moonstone Rock' },
+    Values = { 'Rock', 'Copper Rock', 'Bronze Rock', 'Iron Rock', 'Silver Rock', 'Gold Rock', 'Diamond Rock', 'Sapphire Rock', 'Topaz Rock', 'Amethyst Rock', 'Amethyst Rock', 'Emerald Rock', 'Obsidian Rock', 'Moonstone Rock', 'Prismatic Crystal' },
     Default = 0, 
     Multi = true, 
 
