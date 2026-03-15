@@ -2041,29 +2041,37 @@ MenuGroup:AddButton('Unload', function() Library:Unload() end)
 MenuGroup:AddButton('Join Discord', function() Library:Notify("Copied to clipboard.") setclipboard("https://discord.gg/UkPDe8hF4p") end)
 MenuGroup:AddLabel('Menu bind'):AddKeyPicker('MenuKeybind', { Default = 'RightShift', NoUI = true, Text = 'Menu keybind' })
 
-Library.ToggleKeybind = Options.MenuKeybind
 local Lighting = game:GetService("Lighting")
 
--- 1. Create the blur exactly like your original
+-- 1. Create/Re-use the Blur
 local MenuBlur = Lighting:FindFirstChild("MenuBlur") or Instance.new("BlurEffect", Lighting)
 MenuBlur.Name = "MenuBlur"
 MenuBlur.Size = 20
-MenuBlur.Enabled = false -- Starts off until you toggle or press key
+MenuBlur.Enabled = false 
 
--- 2. This variable will track the slider value
-local CURRENT_BLUR_SIZE = 20
+-- 2. Master Trackers
+local IS_MASTER_ON = false
+local IS_MENU_OPEN = true -- Assume it's open at start
 
--- 3. The Keybind Logic (Exactly like your original, just adding the size sync)
+-- 3. The Function that controls reality
+local function refreshBlur()
+    -- Only enable if the user toggled it ON and the menu is OPEN
+    MenuBlur.Enabled = (IS_MASTER_ON and IS_MENU_OPEN)
+end
+
+-- 4. Keybind (Manual toggle)
 Options.MenuKeybind:OnClick(function()
-    MenuBlur.Enabled = not MenuBlur.Enabled
-    MenuBlur.Size = CURRENT_BLUR_SIZE
+    IS_MENU_OPEN = not IS_MENU_OPEN
+    refreshBlur()
 end)
 
+-- 5. UI Controls
 MenuGroup:AddToggle('EnableBlur', {
-    Text = 'Enable blur',
-    Default = false, 
+    Text = 'Enable Master Blur',
+    Default = false,
     Callback = function(Value)
-        MenuBlur.Enabled = Value
+        IS_MASTER_ON = Value
+        refreshBlur()
     end
 })
 
@@ -2071,14 +2079,10 @@ MenuGroup:AddSlider('BlurValue', {
     Text = 'Blur Strength',
     Default = 20,
     Min = 1,
-    Max = 56, 
+    Max = 56,
     Rounding = 1,
     Callback = function(Value)
-        CURRENT_BLUR_SIZE = Value
-        -- If the blur is already on, update the size immediately
-        if MenuBlur.Enabled then
-            MenuBlur.Size = Value
-        end
+        MenuBlur.Size = Value
     end
 })
 
