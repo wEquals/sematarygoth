@@ -874,18 +874,26 @@ local Label = Tab:CreateLabel("Ore Autofarm", 4483362458, Color3.fromRGB(255, 25
 
 local AUTOFARM = false
 local OREHIGHLIGHT = false
+local RANDOM_TP_ENABLED = false -- Toggle for the idle teleport feature
 local CLICK_COOLDOWN = 0.15 
+local IDLE_THRESHOLD = 5       -- Seconds to wait before TPing
 
 local TARGET_ITEMS = {
     ["Rock"] = false,
-    ["Tin Rock"] = false,
     ["Copper Rock"] = false,
-    ["Iron Rock"] = false,
     ["Bronze Rock"] = false,
+    ["Iron Rock"] = false,
     ["Silver Rock"] = false,
+    ["Gold Rock"] = false,
+    ["Diamond Rock"] = false,
+    ["Sapphire Rock"] = false,
+    ["Topaz Rock"] = false,
+    ["Amethyst Rock"] = false,
+    ["Amethyst Rock"] = false,
+    ["Emerald Rock"] = false,
     ["Obsidian Rock"] = false,
     ["Moonstone Rock"] = false,
-    ["Gold Rock"] = false,
+    ["Prismatic Crystal"] = false
 }
 
 local ATTR_NAME = "itemName"
@@ -895,7 +903,9 @@ local player = game.Players.LocalPlayer
 local camera = workspace.CurrentCamera
 local VIM = game:GetService("VirtualInputManager")
 
--- Highlight setup
+local lastPos = Vector3.new(0,0,0)
+local lastMoveTime = tick()
+
 local highlight = Instance.new("Highlight")
 highlight.FillColor = Color3.fromRGB(0, 255, 255)
 highlight.Parent = game:GetService("CoreGui")
@@ -910,6 +920,51 @@ local function getCurrentIsland()
     return nil
 end
 
+---
+-- IDLE CHECKER THREAD (Updated for your Table Structure)
+---
+task.spawn(function()
+    while true do
+        task.wait(1)
+        
+        if not AUTOFARM or not RANDOM_TP_ENABLED then 
+            lastMoveTime = tick() 
+            continue 
+        end
+        
+        local character = player.Character
+        local root = character and character:FindFirstChild("HumanoidRootPart")
+        
+        if root then
+            -- Check if player has moved
+            if (root.Position - lastPos).Magnitude > 2 then
+                lastPos = root.Position
+                lastMoveTime = tick()
+            else
+                -- Stuck detection
+                if tick() - lastMoveTime > IDLE_THRESHOLD then
+                    local myIsland = getCurrentIsland()
+                    if myIsland then
+                        local islandName = myIsland.Name
+                        local locations = IslandTeleports[islandName]
+                        
+                        -- Only TP if the island exists in your table and has coords
+                        if locations and #locations > 0 then
+                            local randomTarget = locations[math.random(1, #locations)]
+                            root.CFrame = CFrame.new(randomTarget)
+                            print("Stuck on " .. islandName .. ": Teleporting to random spot.")
+                        end
+                    end
+                    lastMoveTime = tick()
+                end
+            end
+        end
+    end
+end)
+
+---
+-- MAIN AUTOFARM THREAD
+---
 task.spawn(function()
     while true do
         task.wait(0.5)
@@ -921,15 +976,13 @@ task.spawn(function()
         for _, object in ipairs(myIsland:GetDescendants()) do
             if not AUTOFARM then break end
 
-            -- Check if the model's attribute is in our TARGET_ITEMS table
             local itemName = object:GetAttribute(ATTR_NAME)
-                if object:IsA("Model") and TARGET_ITEMS[itemName] == true then
+            if object:IsA("Model") and TARGET_ITEMS[itemName] == true then
                 
                 local targetPart = object.PrimaryPart or object:FindFirstChildWhichIsA("BasePart")
                 local currentHealth = object:GetAttribute(HEALTH_ATTR)
                 
                 if targetPart and currentHealth and currentHealth > 0 then
-                    
                     if OREHIGHLIGHT then
                         highlight.Adornee = object
                         highlight.Enabled = true
@@ -938,21 +991,17 @@ task.spawn(function()
                     local character = player.Character
                     local root = character and character:FindFirstChild("HumanoidRootPart")
                     if root then
-                        -- Teleport to face the target
                         root.CFrame = CFrame.new(targetPart.Position + Vector3.new(0, 2, 4), targetPart.Position)
                     end
                     
                     task.wait(0.3)
 
-                    -- MINING LOOP
                     while AUTOFARM and object.Parent and (object:GetAttribute(HEALTH_ATTR) or 0) > 0 do
-                        -- Force Camera to lock on
                         camera.CFrame = CFrame.new(camera.CFrame.Position, targetPart.Position)
                         
                         local vpSize = camera.ViewportSize
                         local x, y = vpSize.X / 2, vpSize.Y / 2
 
-                        -- Engine-level Click with a tiny "wiggle" to force registration
                         pcall(function()
                             VIM:SendMouseMoveEvent(x + 1, y + 1, game)
                             VIM:SendMouseButtonEvent(x, y, 0, true, game, 1)
@@ -988,9 +1037,18 @@ Tab:CreateToggle({
    end,
 })
 
+Tab:CreateToggle({
+   Name = "Randomly teleport",
+   CurrentValue = false,
+   Flag = "RandomTeleport", -- A flag is the identifier for the configuration file; make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+      RANDOM_TP_ENABLED = Value
+   end,
+})
+
 local Dropdown = Tab:CreateDropdown({
    Name = "Ore Selection",
-   Options = {'Rock', 'Tin Rock', 'Copper Rock', 'Iron Rock', 'Bronze Rock', 'Silver Rock', 'Obsidian Rock', 'Moonstone Rock', 'Gold Rock'},
+   Options = {'Rock', 'Copper Rock', 'Bronze Rock', 'Iron Rock', 'Silver Rock', 'Gold Rock', 'Diamond Rock', 'Sapphire Rock', 'Topaz Rock', 'Amethyst Rock', 'Amethyst Rock', 'Emerald Rock', 'Obsidian Rock', 'Moonstone Rock', 'Prismatic Crystal'},
    CurrentOption = {}, -- Start empty
    MultipleOptions = true,
    Flag = "OreSelection", 
