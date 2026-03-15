@@ -884,18 +884,26 @@ local Ores = Tabs.Main:AddLeftGroupbox('Ores')
 
 local AUTOFARM = false
 local OREHIGHLIGHT = false
+local RANDOM_TP_ENABLED = false -- Toggle for the idle teleport feature
 local CLICK_COOLDOWN = 0.15 
+local IDLE_THRESHOLD = 5       -- Seconds to wait before TPing
 
 local TARGET_ITEMS = {
     ["Rock"] = false,
-    ["Tin Rock"] = false,
     ["Copper Rock"] = false,
-    ["Iron Rock"] = false,
     ["Bronze Rock"] = false,
+    ["Iron Rock"] = false,
     ["Silver Rock"] = false,
+    ["Gold Rock"] = false,
+    ["Diamond Rock"] = false,
+    ["Sapphire Rock"] = false,
+    ["Topaz Rock"] = false,
+    ["Amethyst Rock"] = false,
+    ["Amethyst Rock"] = false,
+    ["Emerald Rock"] = false,
     ["Obsidian Rock"] = false,
     ["Moonstone Rock"] = false,
-    ["Gold Rock"] = false,
+    ["Prismatic Crystal"] = false
 }
 
 local ATTR_NAME = "itemName"
@@ -905,7 +913,9 @@ local player = game.Players.LocalPlayer
 local camera = workspace.CurrentCamera
 local VIM = game:GetService("VirtualInputManager")
 
--- Highlight setup
+local lastPos = Vector3.new(0,0,0)
+local lastMoveTime = tick()
+
 local highlight = Instance.new("Highlight")
 highlight.FillColor = Color3.fromRGB(0, 255, 255)
 highlight.Parent = game:GetService("CoreGui")
@@ -920,6 +930,51 @@ local function getCurrentIsland()
     return nil
 end
 
+---
+-- IDLE CHECKER THREAD (Updated for your Table Structure)
+---
+task.spawn(function()
+    while true do
+        task.wait(1)
+        
+        if not AUTOFARM or not RANDOM_TP_ENABLED then 
+            lastMoveTime = tick() 
+            continue 
+        end
+        
+        local character = player.Character
+        local root = character and character:FindFirstChild("HumanoidRootPart")
+        
+        if root then
+            -- Check if player has moved
+            if (root.Position - lastPos).Magnitude > 2 then
+                lastPos = root.Position
+                lastMoveTime = tick()
+            else
+                -- Stuck detection
+                if tick() - lastMoveTime > IDLE_THRESHOLD then
+                    local myIsland = getCurrentIsland()
+                    if myIsland then
+                        local islandName = myIsland.Name
+                        local locations = IslandTeleports[islandName]
+                        
+                        -- Only TP if the island exists in your table and has coords
+                        if locations and #locations > 0 then
+                            local randomTarget = locations[math.random(1, #locations)]
+                            root.CFrame = CFrame.new(randomTarget)
+                            print("Stuck on " .. islandName .. ": Teleporting to random spot.")
+                        end
+                    end
+                    lastMoveTime = tick()
+                end
+            end
+        end
+    end
+end)
+
+---
+-- MAIN AUTOFARM THREAD
+---
 task.spawn(function()
     while true do
         task.wait(0.5)
@@ -931,15 +986,13 @@ task.spawn(function()
         for _, object in ipairs(myIsland:GetDescendants()) do
             if not AUTOFARM then break end
 
-            -- Check if the model's attribute is in our TARGET_ITEMS table
             local itemName = object:GetAttribute(ATTR_NAME)
-                if object:IsA("Model") and TARGET_ITEMS[itemName] == true then
+            if object:IsA("Model") and TARGET_ITEMS[itemName] == true then
                 
                 local targetPart = object.PrimaryPart or object:FindFirstChildWhichIsA("BasePart")
                 local currentHealth = object:GetAttribute(HEALTH_ATTR)
                 
                 if targetPart and currentHealth and currentHealth > 0 then
-                    
                     if OREHIGHLIGHT then
                         highlight.Adornee = object
                         highlight.Enabled = true
@@ -948,21 +1001,17 @@ task.spawn(function()
                     local character = player.Character
                     local root = character and character:FindFirstChild("HumanoidRootPart")
                     if root then
-                        -- Teleport to face the target
                         root.CFrame = CFrame.new(targetPart.Position + Vector3.new(0, 2, 4), targetPart.Position)
                     end
                     
                     task.wait(0.3)
 
-                    -- MINING LOOP
                     while AUTOFARM and object.Parent and (object:GetAttribute(HEALTH_ATTR) or 0) > 0 do
-                        -- Force Camera to lock on
                         camera.CFrame = CFrame.new(camera.CFrame.Position, targetPart.Position)
                         
                         local vpSize = camera.ViewportSize
                         local x, y = vpSize.X / 2, vpSize.Y / 2
 
-                        -- Engine-level Click with a tiny "wiggle" to force registration
                         pcall(function()
                             VIM:SendMouseMoveEvent(x + 1, y + 1, game)
                             VIM:SendMouseButtonEvent(x, y, 0, true, game, 1)
@@ -1000,6 +1049,16 @@ Ores:AddToggle('OreHighlight_Enable', {
     end
 })
 
+Ores:AddToggle('OreRandomTeleport', {
+    Text = 'Random teleport',
+    Default = false,
+    Tooltip = 'Enables random teleportation',
+
+    Callback = function(Value)
+        RANDOM_TP_ENABLED = Value
+    end
+})
+
 Ores:AddDropdown('OreType', {
     Values = { 'Rock', 'Tin Rock', 'Copper Rock', 'Iron Rock', 'Bronze Rock', 'Silver Rock', 'Gold Rock', 'Obsidian Rock', 'Moonstone Rock' },
     Default = 0, 
@@ -1014,6 +1073,20 @@ Ores:AddDropdown('OreType', {
         end
     end
 })
+
+LeftGroupBox:AddSlider('Idle_Limit', {
+    Text = 'Idle Limit',
+    Default = 30,
+    Min = 0,
+    Max = 1000,
+    Rounding = 0.1,
+    Compact = false,
+
+    Callback = function(Value)
+        IDLE_THRESHOLD = Value
+    end
+})
+
 
 local ESP = Tabs.Visuals:AddLeftGroupbox('Visuals')
 
@@ -1522,7 +1595,6 @@ CharacterVisuals:AddSlider('AnimSpeed', {
     end
 })
 
-
 local RunService = game:GetService("RunService")
 local Player = game:GetService("Players").LocalPlayer
 
@@ -1968,18 +2040,49 @@ local MenuGroup = Tabs['UI Settings']:AddLeftGroupbox('Menu')
 MenuGroup:AddButton('Unload', function() Library:Unload() end)
 MenuGroup:AddButton('Join Discord', function() Library:Notify("Copied to clipboard.") setclipboard("https://discord.gg/UkPDe8hF4p") end)
 MenuGroup:AddLabel('Menu bind'):AddKeyPicker('MenuKeybind', { Default = 'RightShift', NoUI = true, Text = 'Menu keybind' })
-MenuGroup:AddLabel('I LOVE MY WIFE ZEE', true)
 
 Library.ToggleKeybind = Options.MenuKeybind
+local Lighting = game:GetService("Lighting")
 
-local MenuBlur = Instance.new("BlurEffect", Lighting)
+-- 1. Create the blur exactly like your original
+local MenuBlur = Lighting:FindFirstChild("MenuBlur") or Instance.new("BlurEffect", Lighting)
 MenuBlur.Name = "MenuBlur"
 MenuBlur.Size = 20
-MenuBlur.Enabled = true 
+MenuBlur.Enabled = false -- Starts off until you toggle or press key
 
+-- 2. This variable will track the slider value
+local CURRENT_BLUR_SIZE = 20
+
+-- 3. The Keybind Logic (Exactly like your original, just adding the size sync)
 Options.MenuKeybind:OnClick(function()
     MenuBlur.Enabled = not MenuBlur.Enabled
+    MenuBlur.Size = CURRENT_BLUR_SIZE
 end)
+
+MenuGroup:AddToggle('EnableBlur', {
+    Text = 'Enable blur',
+    Default = false, 
+    Callback = function(Value)
+        MenuBlur.Enabled = Value
+    end
+})
+
+MenuGroup:AddSlider('BlurValue', {
+    Text = 'Blur Strength',
+    Default = 20,
+    Min = 1,
+    Max = 56, 
+    Rounding = 1,
+    Callback = function(Value)
+        CURRENT_BLUR_SIZE = Value
+        -- If the blur is already on, update the size immediately
+        if MenuBlur.Enabled then
+            MenuBlur.Size = Value
+        end
+    end
+})
+
+MenuGroup:AddLabel('I LOVE MY WIFE ZEE', true)
 
 ThemeManager:SetLibrary(Library)
 SaveManager:SetLibrary(Library)
